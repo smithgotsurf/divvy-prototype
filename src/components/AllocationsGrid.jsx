@@ -23,12 +23,12 @@ export default function AllocationsGrid({ year, monthIndex, allocations, ytdData
           <tr>
             <th className="ag-th-name">Item</th>
             <th className="ag-th-pct">%</th>
-            <th className="ag-th-num">Budget</th>
-            {showSplit && <th className="ag-th-num">{e1Name}</th>}
-            {showSplit && <th className="ag-th-num">{e2Name}</th>}
-            <th className="ag-th-num">Actual</th>
-            <th className="ag-th-notes">YTD</th>
-            <th className="ag-th-x"></th>
+            <th className="ag-th-num col-num">Budget</th>
+            {showSplit && <th className="ag-th-num col-num">{e1Name}</th>}
+            {showSplit && <th className="ag-th-num col-num">{e2Name}</th>}
+            <th className="ag-th-num col-num">Actual</th>
+            <th className="ag-th-notes col-notes">YTD</th>
+            <th className="ag-th-x col-x"></th>
           </tr>
         </thead>
         <tbody>

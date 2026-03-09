@@ -21,12 +21,12 @@ export default function BillsGrid({ year, monthIndex, bills }) {
         <thead>
           <tr>
             <th className="bg-th-name">Item</th>
-            <th className="bg-th-num">Budget</th>
-            {showSplit && <th className="bg-th-num">{e1Name}</th>}
-            {showSplit && <th className="bg-th-num">{e2Name}</th>}
-            <th className="bg-th-num">Actual</th>
-            <th className="bg-th-notes">Notes</th>
-            <th className="bg-th-x"></th>
+            <th className="bg-th-num col-num">Budget</th>
+            {showSplit && <th className="bg-th-num col-num">{e1Name}</th>}
+            {showSplit && <th className="bg-th-num col-num">{e2Name}</th>}
+            <th className="bg-th-num col-num">Actual</th>
+            <th className="bg-th-notes col-notes">Notes</th>
+            <th className="bg-th-x col-x"></th>
           </tr>
         </thead>
         <tbody>

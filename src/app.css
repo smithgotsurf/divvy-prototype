@@ -297,6 +297,11 @@ body {
 .bg-th-notes, .ag-th-notes { min-width: 80px; }
 .bg-th-x, .ag-th-x, .fg-th-x { width: 28px; }
 
+/* ── Column Alignment (shared across Bills & Allocations) ── */
+.col-num { width: 100px; }
+.col-notes { width: 100px; }
+.col-x { width: 28px; }
+
 /* Totals row */
 .bg-totals td {
   font-weight: 600;
