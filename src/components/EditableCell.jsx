@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-export default function EditableCell({ value, onChange, type = "text", className = "", formatter }) {
+export default function EditableCell({ value, onChange, type = "text", className = "", formatter, placeholder }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const inputRef = useRef(null);
@@ -54,7 +54,7 @@ export default function EditableCell({ value, onChange, type = "text", className
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === "Enter") { setDraft(value); setEditing(true); } }}
     >
-      {display || <span className="ec-empty">—</span>}
+      {display || (placeholder ? <span className="ec-empty">{placeholder}</span> : <span className="ec-empty">—</span>)}
     </span>
   );
 }

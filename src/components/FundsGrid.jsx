@@ -19,18 +19,30 @@ export default function FundsGrid({ year, monthIndex, funds }) {
             <th className="fg-th-num">In</th>
             <th className="fg-th-num">Out</th>
             <th className="fg-th-num">Closing</th>
-            <th className="fg-th-num">Min</th>
+            <th className="fg-th-notes">Notes</th>
             <th className="fg-th-x"></th>
           </tr>
         </thead>
         <tbody>
           {funds.map((f) => {
             const closing = fundClosing(f);
-            const belowMin = closing < f.minBal;
+            const belowMin = f.minBal > 0 && closing < f.minBal;
             return (
               <tr key={f.id} className={belowMin ? "fg-warn" : ""}>
                 <td>
-                  <EditableCell value={f.name} onChange={(v) => updateFund(year, monthIndex, f.id, { name: v })} />
+                  <div className="fg-name-cell">
+                    <EditableCell value={f.name} onChange={(v) => updateFund(year, monthIndex, f.id, { name: v })} />
+                    <span className="fg-min">
+                      {f.minBal > 0 && " · "}
+                      <EditableCell
+                        value={f.minBal || ""}
+                        type="number"
+                        formatter={(v) => v ? `min ${fmt(v)}` : ""}
+                        onChange={(v) => updateFund(year, monthIndex, f.id, { minBal: v || 0 })}
+                        placeholder="+ min"
+                      />
+                    </span>
+                  </div>
                 </td>
                 <td className="num">
                   <EditableCell value={f.opening} type="number" formatter={fmt} onChange={(v) => updateFund(year, monthIndex, f.id, { opening: v })} />
@@ -42,7 +54,9 @@ export default function FundsGrid({ year, monthIndex, funds }) {
                   <EditableCell value={f.transfersOut} type="number" formatter={fmt} onChange={(v) => updateFund(year, monthIndex, f.id, { transfersOut: v })} />
                 </td>
                 <td className={`num ${belowMin ? "fg-below" : ""}`}>{fmt(closing)}</td>
-                <td className="num muted">{fmt(f.minBal)}</td>
+                <td>
+                  <EditableCell value={f.notes} onChange={(v) => updateFund(year, monthIndex, f.id, { notes: v })} className="bg-notes" />
+                </td>
                 <td>
                   <button className="fg-rm" onClick={() => removeFund(year, monthIndex, f.id)} title="Remove">×</button>
                 </td>
