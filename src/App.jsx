@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, Navigate, useLocation } from "react-router-dom";
 import { useBudget } from "./context/BudgetContext";
 import YtdSidebar from "./components/YtdSidebar";
 
@@ -8,6 +8,11 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const years = Object.keys(state.years).map(Number).sort();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  if (!state.setupComplete && location.pathname !== "/setup") {
+    return <Navigate to="/setup" replace />;
+  }
 
   return (
     <div className={`app ${sidebarOpen ? "sb-open" : ""}`}>
