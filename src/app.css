@@ -342,6 +342,18 @@ tr:hover .bg-rm, tr:hover .ag-rm, tr:hover .fg-rm { opacity: 1; }
   font-family: var(--font-mono);
 }
 
+/* Allocation totals row */
+.ag-totals td {
+  font-weight: 600;
+  border-top: 2px solid var(--border);
+  border-bottom: none;
+  padding-top: 6px;
+  padding-bottom: 8px;
+}
+
+/* Pct column — narrow, tucked next to Item */
+.ag-th-pct { text-align: right; width: 48px; }
+
 /* Fund warnings */
 .fg-warn { background: var(--amber-bg); }
 .fg-warn:hover { background: #fff8e1 !important; }
