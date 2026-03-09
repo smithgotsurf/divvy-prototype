@@ -40,91 +40,69 @@ export const makeMonth = (year, month, earners, bills, allocations, funds) => ({
   funds: funds.map(f => ({ ...f, id: crypto.randomUUID() })),
 });
 
-// Seed: profile with earners
-export const SEED_PROFILE = {
-  earners: [
-    makeEarner("Josh", 10600),
-    makeEarner("Jacklyn", 0),
-  ],
+// Empty state — fresh start, redirects to setup
+export const EMPTY_STATE = {
+  profile: { earners: [], useSplit: false },
+  years: {},
+  currentYear: new Date().getFullYear(),
+  setupComplete: false,
+};
+
+// Templates for setup wizard prefill
+export const TEMPLATE_DUAL = {
+  label: "Dual income household",
+  description: "Two earners splitting bills proportionally",
+  earnerCount: 2,
   useSplit: true,
+  earners: [
+    { name: "Jack", income: 6500 },
+    { name: "Jill", income: 4000 },
+  ],
+  bills: [
+    { name: "Mortgage/Rent", budget: 2200, notes: "", autopay: false },
+    { name: "Utilities", budget: 250, notes: "", autopay: true },
+    { name: "Internet", budget: 80, notes: "", autopay: true },
+    { name: "Phone", budget: 120, notes: "", autopay: true },
+    { name: "Car Insurance", budget: 180, notes: "", autopay: false },
+    { name: "Subscriptions", budget: 60, notes: "", autopay: true },
+  ],
+  allocations: [
+    { name: "Grocery", pct: 12, fixed: false },
+    { name: "Savings", pct: 10, fixed: false },
+    { name: "Charity", pct: 5, fixed: true },
+  ],
+  funds: [
+    { name: "Joint Savings", opening: 5000, minBal: 1000 },
+    { name: "Emergency Fund", opening: 10000, minBal: 5000 },
+  ],
 };
 
-// Seed: bill templates
-export const SEED_BILLS = [
-  makeBill("Mortgage", 2050, 2050, 0, 0, "recurring 1st", false),
-  makeBill("Equity Line", 1500, 1500, 0, 0, "due 22nd", false),
-  makeBill("Escrow", 700, 700, 0, 0, "", false),
-  makeBill("T-Mobile", 142, 142, 0, 0, "autopay 1st", true),
-  makeBill("Misc", 100, 100, 0, 0, "", false),
-  makeBill("Duke Energy", 325, 325, 0, 0, "scheduled 20th", false),
-  makeBill("McLambs LP", 105, 105, 0, 0, "", false),
-  makeBill("Car Insurance", 175, 175, 0, 0, "due Mar & Sep", false),
-  makeBill("Life Insurance", 63, 36, 27, 0, "autopay 9/1", true),
-];
-
-// Seed: allocation templates
-export const SEED_ALLOCATIONS = [
-  makeAllocation("Grocery", 13, false, 1380, 0),
-  makeAllocation("Charity", 10, true, 1060, 0),
-  makeAllocation("Savings", 5, false, 530, 0),
-];
-
-// Seed: fund templates
-export const SEED_FUNDS = [
-  makeFund("Joint Savings", 1325, 250),
-  makeFund("Rainy Day Fund", 5400, 25),
-  makeFund("Josh Savings", 26832, 250),
-  makeFund("Jacklyn Savings", 19648, 250),
-];
-
-// Build seed months for Jan-Mar 2026
-function buildSeedMonths() {
-  const totalIncome = 10600;
-
-  // January
-  const jan = makeMonth(2026, 0, SEED_PROFILE.earners, SEED_BILLS, SEED_ALLOCATIONS, SEED_FUNDS);
-  // Set actuals for Jan
-  const janActuals = { "Mortgage": 2050, "Equity Line": 1500, "T-Mobile": 142, "Duke Energy": 631, "Misc": 150 };
-  jan.bills.forEach(b => { if (janActuals[b.name] !== undefined) b.actual = janActuals[b.name]; });
-  jan.allocations.forEach(a => { a.actual = Math.round(totalIncome * a.pct / 100); });
-  // Jan funds
-  jan.funds[0].opening = 1325; jan.funds[0].transfersIn = 540; jan.funds[0].transfersOut = 1023;
-  jan.funds[1].opening = 5400; jan.funds[1].transfersIn = 208; jan.funds[1].transfersOut = 0;
-  jan.funds[2].opening = 26832; jan.funds[2].transfersIn = 0; jan.funds[2].transfersOut = 6500;
-  jan.funds[3].opening = 19648; jan.funds[3].transfersIn = 197; jan.funds[3].transfersOut = 998;
-
-  // February
-  const feb = makeMonth(2026, 1, SEED_PROFILE.earners, SEED_BILLS, SEED_ALLOCATIONS, SEED_FUNDS);
-  const febActuals = { "Mortgage": 2050, "Equity Line": 1500, "T-Mobile": 146, "Duke Energy": 538, "Car Insurance": 1041 };
-  feb.bills.forEach(b => { if (febActuals[b.name] !== undefined) b.actual = febActuals[b.name]; });
-  feb.allocations.forEach(a => { a.actual = Math.round(totalIncome * a.pct / 100); });
-  // Feb funds — carry forward from Jan closing
-  feb.funds[0].opening = 842; feb.funds[0].transfersIn = 530; feb.funds[0].transfersOut = 720;
-  feb.funds[1].opening = 5608; feb.funds[1].transfersIn = 171; feb.funds[1].transfersOut = 0;
-  feb.funds[2].opening = 20332; feb.funds[2].transfersIn = 0; feb.funds[2].transfersOut = 0;
-  feb.funds[3].opening = 18847; feb.funds[3].transfersIn = 0; feb.funds[3].transfersOut = 315;
-
-  // March (current month — mostly empty actuals)
-  const mar = makeMonth(2026, 2, SEED_PROFILE.earners, SEED_BILLS, SEED_ALLOCATIONS, SEED_FUNDS);
-  const marActuals = { "Mortgage": 2050 };
-  mar.bills.forEach(b => { if (marActuals[b.name] !== undefined) b.actual = marActuals[b.name]; });
-  mar.allocations.forEach(a => { a.actual = Math.round(totalIncome * a.pct / 100); });
-  mar.funds[0].opening = 652; mar.funds[0].transfersIn = 0; mar.funds[0].transfersOut = 0;
-  mar.funds[1].opening = 5779; mar.funds[1].transfersIn = 0; mar.funds[1].transfersOut = 0;
-  mar.funds[2].opening = 20332; mar.funds[2].transfersIn = 0; mar.funds[2].transfersOut = 0;
-  mar.funds[3].opening = 18532; mar.funds[3].transfersIn = 0; mar.funds[3].transfersOut = 0;
-
-  return [jan, feb, mar];
-}
-
-export const SEED_MONTHS = buildSeedMonths();
-
-// Default app state
-export const SEED_STATE = {
-  profile: SEED_PROFILE,
-  years: {
-    2026: { months: SEED_MONTHS },
-  },
-  currentYear: 2026,
-  setupComplete: true,
+export const TEMPLATE_SINGLE = {
+  label: "Single income household",
+  description: "One earner managing all expenses",
+  earnerCount: 1,
+  useSplit: false,
+  earners: [
+    { name: "Jack", income: 5500 },
+    { name: "", income: 0 },
+  ],
+  bills: [
+    { name: "Rent", budget: 1500, notes: "", autopay: false },
+    { name: "Utilities", budget: 180, notes: "", autopay: true },
+    { name: "Internet", budget: 70, notes: "", autopay: true },
+    { name: "Phone", budget: 80, notes: "", autopay: true },
+    { name: "Car Insurance", budget: 150, notes: "", autopay: false },
+    { name: "Subscriptions", budget: 45, notes: "", autopay: true },
+  ],
+  allocations: [
+    { name: "Grocery", pct: 12, fixed: false },
+    { name: "Savings", pct: 8, fixed: false },
+    { name: "Fun Money", pct: 5, fixed: false },
+  ],
+  funds: [
+    { name: "Savings Account", opening: 4000, minBal: 1000 },
+    { name: "Emergency Fund", opening: 8000, minBal: 3000 },
+  ],
 };
+
+export const TEMPLATES = { dual: TEMPLATE_DUAL, single: TEMPLATE_SINGLE };

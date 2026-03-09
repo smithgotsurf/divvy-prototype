@@ -28,7 +28,7 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { font-size: 14px; }
+html { font-size: 17px; }
 body {
   font-family: var(--font-sans);
   background: var(--bg);
@@ -115,6 +115,20 @@ body {
 }
 .sb-toggle:hover { border-color: var(--accent); color: var(--accent); }
 
+.hdr-clone {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 5px 10px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.hdr-clone:hover { border-color: var(--accent); color: var(--accent); }
+
 /* ── Layout ── */
 .main {
   display: flex;
@@ -197,6 +211,28 @@ body {
   color: var(--text);
 }
 
+.mc-clone {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-left: 8px;
+  transition: all 0.15s;
+}
+.mc-clone:hover { border-color: var(--accent); color: var(--accent); }
+
+.mc-chevron {
+  display: inline-block;
+  width: 16px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
 .mc-totals {
   display: flex;
   gap: 16px;
@@ -257,6 +293,10 @@ body {
   font-size: 0.82rem;
 }
 
+.bg-tbl, .ag-tbl, .fg-tbl {
+  table-layout: fixed;
+}
+
 .bg-tbl th, .ag-tbl th, .fg-tbl th,
 .sp-tbl th {
   font-size: 0.7rem;
@@ -293,15 +333,16 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-.bg-th-num, .ag-th-num, .fg-th-num { text-align: right; }
-.bg-th-name, .ag-th-name, .fg-th-name { min-width: 120px; }
-.bg-th-notes, .ag-th-notes { min-width: 80px; }
+.bg-tbl .bg-th-num, .ag-tbl .ag-th-num, .fg-tbl .fg-th-num { text-align: right; }
+.bg-th-notes, .ag-th-notes, .fg-th-notes { width: 340px; }
 .bg-th-x, .ag-th-x, .fg-th-x { width: 28px; }
 
-/* ── Column Alignment (shared across Bills & Allocations) ── */
-.col-num { width: 100px; }
-.col-notes { width: 100px; }
+/* ── Column Alignment (shared across all grids) ── */
+.col-name { width: 210px; }
+.col-narrow { width: 52px; text-align: right; }
+.col-num { width: 82px; text-align: right; }
 .col-x { width: 28px; }
+/* Notes/YTD column gets remaining space automatically */
 
 /* Totals row */
 .bg-totals td {
@@ -357,30 +398,17 @@ tr:hover .bg-rm, tr:hover .ag-rm, tr:hover .fg-rm { opacity: 1; }
   padding-bottom: 8px;
 }
 
-/* Pct column — narrow, tucked next to Item */
-.ag-th-pct { text-align: right; width: 48px; }
+/* Pct column */
+.ag-th-pct { text-align: right; }
 
 /* Fund warnings */
 .fg-warn { background: var(--amber-bg); }
 .fg-warn:hover { background: #fff8e1 !important; }
 .fg-below { color: var(--red); font-weight: 600; }
 
-/* Fund name cell with inline min */
-.fg-name-cell {
-  display: flex;
-  align-items: baseline;
-  gap: 0;
-}
-
-.fg-min {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  white-space: nowrap;
-}
-
-.fg-min .ec { font-size: 0.7rem; color: var(--text-muted); }
-.fg-min .ec-empty { font-style: normal; }
+/* Fund min column — muted styling */
+.fg-min-cell { color: var(--text-muted); font-size: 0.75rem; }
+.fg-min-cell .ec { color: var(--text-muted); font-size: 0.75rem; }
 
 .muted { color: var(--text-muted); }
 
@@ -674,6 +702,31 @@ tr:hover .bg-rm, tr:hover .ag-rm, tr:hover .fg-rm { opacity: 1; }
   align-items: center;
   margin-bottom: 8px;
 }
+.setup-row-hdr {
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-light);
+}
+.setup-row-hdr span {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex: 1;
+  min-width: 0;
+}
+.setup-row-hdr span:last-child {
+  flex: 0 0 24px;
+}
+.setup-row-hdr .hdr-num {
+  flex: 1;
+  max-width: 120px;
+}
+.setup-row-hdr .hdr-check {
+  flex: 0 0 auto;
+  width: 52px;
+}
 .setup-row input {
   font-family: var(--font-sans);
   font-size: 0.85rem;
@@ -777,6 +830,102 @@ tr:hover .bg-rm, tr:hover .ag-rm, tr:hover .fg-rm { opacity: 1; }
   margin-left: auto;
 }
 .setup-finish:hover { opacity: 0.85; }
+
+/* ── Setup: Template Picker ── */
+.setup-templates {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.setup-tpl-card {
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+}
+.setup-tpl-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+}
+.setup-tpl-card h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.setup-tpl-card p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ── Settings Page ── */
+.settings {
+  max-width: 560px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+.settings h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+}
+.settings-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+.settings-section h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.settings-section p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.settings-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.settings-btn {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.settings-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.settings-btn-danger {
+  color: var(--red);
+}
+.settings-btn-danger:hover {
+  background: var(--red-bg);
+  color: var(--red);
+  border-color: var(--red);
+}
+.settings-status {
+  font-size: 0.8rem;
+  margin-top: 8px;
+}
+.settings-status.success { color: var(--green); }
+.settings-status.error { color: var(--red); }
 
 /* ── Scrollbar ── */
 .content::-webkit-scrollbar, .sidebar::-webkit-scrollbar {

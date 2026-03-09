@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback } from "react";
-import { STORAGE_KEY, SEED_STATE, makeMonth, makeBill, makeAllocation, makeFund } from "../data";
+import { STORAGE_KEY, EMPTY_STATE, makeMonth, makeBill, makeAllocation, makeFund } from "../data";
 import { totalIncome, splitRatios, allocAmount, fundClosing } from "../shared/helpers";
 
 const BudgetContext = createContext();
@@ -17,7 +17,7 @@ function save(state) {
 }
 
 export function BudgetProvider({ children }) {
-  const [state, setState] = useState(() => load() || SEED_STATE);
+  const [state, setState] = useState(() => load() || EMPTY_STATE);
 
   const persist = useCallback((next) => {
     setState(next);
@@ -231,9 +231,20 @@ export function BudgetProvider({ children }) {
     persist(newState);
   }, [persist]);
 
-  // Reset to seed data
+  // Export/Import
+  const exportData = useCallback(() => JSON.stringify(state, null, 2), [state]);
+
+  const importData = useCallback((jsonString) => {
+    const parsed = JSON.parse(jsonString);
+    if (!parsed.profile || !parsed.years || parsed.setupComplete === undefined) {
+      throw new Error("Invalid Divvy budget file");
+    }
+    persist(parsed);
+  }, [persist]);
+
+  // Reset to empty state
   const resetData = useCallback(() => {
-    persist(SEED_STATE);
+    persist(EMPTY_STATE);
   }, [persist]);
 
   return (
@@ -258,6 +269,8 @@ export function BudgetProvider({ children }) {
       addFund,
       removeFund,
       completeSetup,
+      exportData,
+      importData,
       resetData,
     }}>
       {children}

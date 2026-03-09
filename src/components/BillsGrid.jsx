@@ -9,6 +9,8 @@ export default function BillsGrid({ year, monthIndex, bills }) {
   const e2Name = profile.earners[1]?.name || "Earner 2";
 
   const budgetTotal = billsTotal(bills, "budget");
+  const e1Total = billsTotal(bills, "earner1");
+  const e2Total = billsTotal(bills, "earner2");
   const actualTotal = billsTotal(bills, "actual");
 
   return (
@@ -20,12 +22,13 @@ export default function BillsGrid({ year, monthIndex, bills }) {
       <table className="bg-tbl">
         <thead>
           <tr>
-            <th className="bg-th-name">Item</th>
+            <th className="bg-th-name col-name">Item</th>
+            <th className="col-narrow"></th>
             <th className="bg-th-num col-num">Budget</th>
             {showSplit && <th className="bg-th-num col-num">{e1Name}</th>}
             {showSplit && <th className="bg-th-num col-num">{e2Name}</th>}
             <th className="bg-th-num col-num">Actual</th>
-            <th className="bg-th-notes col-notes">Notes</th>
+            <th className="bg-th-notes">Notes</th>
             <th className="bg-th-x col-x"></th>
           </tr>
         </thead>
@@ -35,6 +38,7 @@ export default function BillsGrid({ year, monthIndex, bills }) {
               <td>
                 <EditableCell value={b.name} onChange={(v) => updateBill(year, monthIndex, b.id, { name: v })} />
               </td>
+              <td></td>
               <td className="num">
                 <EditableCell value={b.budget} type="number" formatter={fmt} onChange={(v) => updateBill(year, monthIndex, b.id, { budget: v })} />
               </td>
@@ -63,9 +67,10 @@ export default function BillsGrid({ year, monthIndex, bills }) {
         <tfoot>
           <tr className="bg-totals">
             <td>Subtotal</td>
+            <td></td>
             <td className="num">{fmt(budgetTotal)}</td>
-            {showSplit && <td></td>}
-            {showSplit && <td></td>}
+            {showSplit && <td className="num">{fmt(e1Total)}</td>}
+            {showSplit && <td className="num">{fmt(e2Total)}</td>}
             <td className="num">{fmt(actualTotal)}</td>
             <td></td>
             <td></td>

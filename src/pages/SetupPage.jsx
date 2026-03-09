@@ -1,12 +1,14 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useBudget } from "../context/BudgetContext";
+import { TEMPLATES } from "../data";
 
-const STEPS = ["Earners", "Bills", "Allocations", "Funds"];
+const STEPS = ["Start", "Earners", "Bills", "Allocations", "Funds"];
 
 export default function SetupPage() {
   const { completeSetup } = useBudget();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState(0);
 
   // Step 1: Earners
@@ -25,6 +27,24 @@ export default function SetupPage() {
 
   // Step 4: Funds
   const [funds, setFunds] = useState([{ name: "", opening: 0, minBal: 0 }]);
+
+  const applyTemplate = (t) => {
+    setEarnerCount(t.earnerCount);
+    setEarners([...t.earners]);
+    setUseSplit(t.useSplit);
+    setBills([...t.bills]);
+    setAllocations([...t.allocations]);
+    setFunds([...t.funds]);
+    setStep(1);
+  };
+
+  // Handle ?template= URL param (from Settings page)
+  useEffect(() => {
+    const key = searchParams.get("template");
+    if (key && TEMPLATES[key]) {
+      applyTemplate(TEMPLATES[key]);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const updateEarner = (i, field, value) => {
     const next = [...earners];
@@ -73,6 +93,24 @@ export default function SetupPage() {
 
       {step === 0 && (
         <div className="setup-panel">
+          <h3>Choose a starting point</h3>
+          <div className="setup-templates">
+            {Object.entries(TEMPLATES).map(([key, t]) => (
+              <button key={key} className="setup-tpl-card" onClick={() => applyTemplate(t)}>
+                <h4>{t.label}</h4>
+                <p>{t.description}</p>
+              </button>
+            ))}
+            <button className="setup-tpl-card" onClick={() => setStep(1)}>
+              <h4>Start blank</h4>
+              <p>Set up everything from scratch</p>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === 1 && (
+        <div className="setup-panel">
           <h3>How many earners?</h3>
           <div className="setup-toggle">
             <button className={earnerCount === 1 ? "active" : ""} onClick={() => setEarnerCount(1)}>1</button>
@@ -95,10 +133,13 @@ export default function SetupPage() {
         </div>
       )}
 
-      {step === 1 && (
+      {step === 2 && (
         <div className="setup-panel">
           <h3>Monthly Bills</h3>
           <p className="setup-hint">Add your recurring bills. You can always add more later.</p>
+          <div className="setup-row setup-row-hdr">
+            <span>Name</span><span className="hdr-num">Amount</span><span>Notes</span><span className="hdr-check">Auto</span><span></span>
+          </div>
           {bills.map((b, i) => (
             <div key={i} className="setup-row">
               <input placeholder="Bill name" value={b.name} onChange={(e) => updateBill(i, "name", e.target.value)} />
@@ -116,10 +157,13 @@ export default function SetupPage() {
         </div>
       )}
 
-      {step === 2 && (
+      {step === 3 && (
         <div className="setup-panel">
           <h3>Percentage Allocations</h3>
           <p className="setup-hint">These are income-based amounts — like grocery, charity, and savings.</p>
+          <div className="setup-row setup-row-hdr">
+            <span>Name</span><span className="hdr-num">%</span><span className="hdr-check">Fixed</span><span></span>
+          </div>
           {allocations.map((a, i) => (
             <div key={i} className="setup-row">
               <input placeholder="Name" value={a.name} onChange={(e) => updateAlloc(i, "name", e.target.value)} />
@@ -136,10 +180,13 @@ export default function SetupPage() {
         </div>
       )}
 
-      {step === 3 && (
+      {step === 4 && (
         <div className="setup-panel">
           <h3>Funds to Track</h3>
           <p className="setup-hint">Track account balances alongside your budget.</p>
+          <div className="setup-row setup-row-hdr">
+            <span>Name</span><span className="hdr-num">Opening</span><span className="hdr-num">Min</span><span></span>
+          </div>
           {funds.map((f, i) => (
             <div key={i} className="setup-row">
               <input placeholder="Fund name" value={f.name} onChange={(e) => updateFund(i, "name", e.target.value)} />
@@ -156,8 +203,8 @@ export default function SetupPage() {
 
       <div className="setup-nav">
         {step > 0 && <button className="setup-back" onClick={() => setStep(step - 1)}>Back</button>}
-        {step < 3 && <button className="setup-next" onClick={() => setStep(step + 1)}>Next</button>}
-        {step === 3 && <button className="setup-finish" onClick={finish}>Start Budgeting</button>}
+        {step > 0 && step < 4 && <button className="setup-next" onClick={() => setStep(step + 1)}>Next</button>}
+        {step === 4 && <button className="setup-finish" onClick={finish}>Start Budgeting</button>}
       </div>
     </div>
   );

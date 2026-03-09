@@ -2,6 +2,8 @@ import { useBudget } from "../context/BudgetContext";
 import EditableCell from "./EditableCell";
 import { fmt, fundClosing } from "../shared/helpers";
 
+const fmtMin = (v) => v ? fmt(v) : "–";
+
 export default function FundsGrid({ year, monthIndex, funds }) {
   const { updateFund, addFund, removeFund } = useBudget();
 
@@ -14,13 +16,14 @@ export default function FundsGrid({ year, monthIndex, funds }) {
       <table className="fg-tbl">
         <thead>
           <tr>
-            <th className="fg-th-name">Fund</th>
-            <th className="fg-th-num">Opening</th>
-            <th className="fg-th-num">In</th>
-            <th className="fg-th-num">Out</th>
-            <th className="fg-th-num">Closing</th>
+            <th className="fg-th-name col-name">Fund</th>
+            <th className="fg-th-num col-narrow">Min</th>
+            <th className="fg-th-num col-num">Opening</th>
+            <th className="fg-th-num col-num">In</th>
+            <th className="fg-th-num col-num">Out</th>
+            <th className="fg-th-num col-num">Closing</th>
             <th className="fg-th-notes">Notes</th>
-            <th className="fg-th-x"></th>
+            <th className="fg-th-x col-x"></th>
           </tr>
         </thead>
         <tbody>
@@ -30,19 +33,15 @@ export default function FundsGrid({ year, monthIndex, funds }) {
             return (
               <tr key={f.id} className={belowMin ? "fg-warn" : ""}>
                 <td>
-                  <div className="fg-name-cell">
-                    <EditableCell value={f.name} onChange={(v) => updateFund(year, monthIndex, f.id, { name: v })} />
-                    <span className="fg-min">
-                      {f.minBal > 0 && " · "}
-                      <EditableCell
-                        value={f.minBal || ""}
-                        type="number"
-                        formatter={(v) => v ? `min ${fmt(v)}` : ""}
-                        onChange={(v) => updateFund(year, monthIndex, f.id, { minBal: v || 0 })}
-                        placeholder="+ min"
-                      />
-                    </span>
-                  </div>
+                  <EditableCell value={f.name} onChange={(v) => updateFund(year, monthIndex, f.id, { name: v })} />
+                </td>
+                <td className="num fg-min-cell">
+                  <EditableCell
+                    value={f.minBal || ""}
+                    type="number"
+                    formatter={fmtMin}
+                    onChange={(v) => updateFund(year, monthIndex, f.id, { minBal: v || 0 })}
+                  />
                 </td>
                 <td className="num">
                   <EditableCell value={f.opening} type="number" formatter={fmt} onChange={(v) => updateFund(year, monthIndex, f.id, { opening: v })} />

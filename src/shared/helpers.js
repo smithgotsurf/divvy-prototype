@@ -1,13 +1,13 @@
 // Format number as currency
 export const fmt = (n) =>
-  n.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  (n || 0).toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
 // Format with cents when needed
 export const fmtExact = (n) =>
   n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 
 // Format percentage
-export const fmtPct = (n) => `${n}%`;
+export const fmtPct = (n) => n ? `${n}%` : "–";
 
 // Month name from 0-indexed month number
 export const monthName = (m) =>
