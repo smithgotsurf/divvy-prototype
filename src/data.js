@@ -16,16 +16,17 @@ export const makeBill = (name = "", budget = 0, earner1 = 0, earner2 = 0, actual
 });
 
 // Factory: create a blank allocation
-export const makeAllocation = (name = "", pct = 0, fixed = false) => ({
+export const makeAllocation = (name = "", pct = 0, fixed = false, earner1 = 0, earner2 = 0) => ({
   id: crypto.randomUUID(),
   name, pct, fixed,
   actual: 0,
+  earner1, earner2,
 });
 
 // Factory: create a blank fund
-export const makeFund = (name = "", opening = 0, minBal = 0) => ({
+export const makeFund = (name = "", opening = 0, minBal = 0, notes = "") => ({
   id: crypto.randomUUID(),
-  name, opening, transfersIn: 0, transfersOut: 0, minBal,
+  name, opening, transfersIn: 0, transfersOut: 0, minBal, notes,
 });
 
 // Factory: create a month record
@@ -63,9 +64,9 @@ export const SEED_BILLS = [
 
 // Seed: allocation templates
 export const SEED_ALLOCATIONS = [
-  makeAllocation("Grocery", 13, false),
-  makeAllocation("Charity", 10, true),
-  makeAllocation("Savings", 5, false),
+  makeAllocation("Grocery", 13, false, 1380, 0),
+  makeAllocation("Charity", 10, true, 1060, 0),
+  makeAllocation("Savings", 5, false, 530, 0),
 ];
 
 // Seed: fund templates

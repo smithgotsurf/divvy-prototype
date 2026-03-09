@@ -160,7 +160,7 @@ export function BudgetProvider({ children }) {
   const addAllocation = useCallback((year, monthIndex) => {
     updateMonth(year, monthIndex, (m) => ({
       ...m,
-      allocations: [...m.allocations, makeAllocation("New Allocation", 0)],
+      allocations: [...m.allocations, makeAllocation("New Allocation", 0, false, 0, 0)],
     }));
   }, [updateMonth]);
 
@@ -204,9 +204,12 @@ export function BudgetProvider({ children }) {
       return makeBill(b.name, b.budget, e1, e2, 0, b.notes || "", b.autopay || false);
     });
 
-    const initAllocations = allocations.map(a =>
-      makeAllocation(a.name, a.pct, a.fixed || false)
-    );
+    const initAllocations = allocations.map(a => {
+      const amt = allocAmount(a.pct, income);
+      const e1 = Math.round(amt * (ratios[0] || 1));
+      const e2 = amt - e1;
+      return makeAllocation(a.name, a.pct, a.fixed || false, e1, e2);
+    });
 
     const initFunds = funds.map(f =>
       makeFund(f.name, f.opening || 0, f.minBal || 0)
