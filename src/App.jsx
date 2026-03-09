@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useBudget } from "./context/BudgetContext";
+import YtdSidebar from "./components/YtdSidebar";
 
 export default function App() {
   const { currentYear, setCurrentYear, state } = useBudget();
@@ -33,7 +34,7 @@ export default function App() {
         <div className="content">
           <Outlet />
         </div>
-        {sidebarOpen && <aside className="sidebar" id="ytd-sidebar"></aside>}
+        {sidebarOpen && <aside className="sidebar"><YtdSidebar /></aside>}
       </div>
     </div>
   );
