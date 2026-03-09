@@ -4,7 +4,7 @@ import { fmt, billsTotal } from "../shared/helpers";
 
 export default function BillsGrid({ year, monthIndex, bills }) {
   const { updateBill, addBill, removeBill, profile } = useBudget();
-  const showSplit = profile.useSplit && profile.earners.length === 2 && profile.earners[1].income > 0;
+  const showSplit = profile.earners.length === 2;
   const e1Name = profile.earners[0]?.name || "Earner 1";
   const e2Name = profile.earners[1]?.name || "Earner 2";
 
