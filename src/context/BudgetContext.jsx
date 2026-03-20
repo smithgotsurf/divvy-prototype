@@ -135,10 +135,13 @@ export function BudgetProvider({ children }) {
     }));
   }, [updateMonth]);
 
-  const addBill = useCallback((year, monthIndex) => {
+  const addBill = useCallback((year, monthIndex, data) => {
+    const b = data
+      ? makeBill(data.name, data.budget, data.earner1, data.earner2, data.actual, data.notes, data.autopay)
+      : makeBill("New Bill", 0, 0, 0);
     updateMonth(year, monthIndex, (m) => ({
       ...m,
-      bills: [...m.bills, makeBill("New Bill", 0, 0, 0)],
+      bills: [...m.bills, b],
     }));
   }, [updateMonth]);
 
@@ -157,10 +160,13 @@ export function BudgetProvider({ children }) {
     }));
   }, [updateMonth]);
 
-  const addAllocation = useCallback((year, monthIndex) => {
+  const addAllocation = useCallback((year, monthIndex, data) => {
+    const a = data
+      ? makeAllocation(data.name, data.pct, data.fixed, data.earner1, data.earner2)
+      : makeAllocation("New Allocation", 0, false, 0, 0);
     updateMonth(year, monthIndex, (m) => ({
       ...m,
-      allocations: [...m.allocations, makeAllocation("New Allocation", 0, false, 0, 0)],
+      allocations: [...m.allocations, a],
     }));
   }, [updateMonth]);
 
@@ -179,10 +185,13 @@ export function BudgetProvider({ children }) {
     }));
   }, [updateMonth]);
 
-  const addFund = useCallback((year, monthIndex) => {
+  const addFund = useCallback((year, monthIndex, data) => {
+    const f = data
+      ? makeFund(data.name, data.opening, data.minBal, data.notes)
+      : makeFund("New Fund", 0, 0);
     updateMonth(year, monthIndex, (m) => ({
       ...m,
-      funds: [...m.funds, makeFund("New Fund", 0, 0)],
+      funds: [...m.funds, f],
     }));
   }, [updateMonth]);
 

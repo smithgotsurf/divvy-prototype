@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { useBudget } from "../context/BudgetContext";
 import EditableCell from "./EditableCell";
-import { fmt, billsTotal } from "../shared/helpers";
+import RowModal from "./RowModal";
+import { fmt, fmtPct, billsTotal, totalIncome } from "../shared/helpers";
 
 export default function BillsGrid({ year, monthIndex, bills }) {
   const { updateBill, addBill, removeBill, profile } = useBudget();
+  const [modal, setModal] = useState(null); // { data, isNew }
+  const income = totalIncome(profile.earners);
   const showSplit = profile.earners.length === 2;
   const e1Name = profile.earners[0]?.name || "Earner 1";
   const e2Name = profile.earners[1]?.name || "Earner 2";
@@ -13,17 +17,29 @@ export default function BillsGrid({ year, monthIndex, bills }) {
   const e2Total = billsTotal(bills, "earner2");
   const actualTotal = billsTotal(bills, "actual");
 
+  const handleAdd = () => {
+    setModal({ data: { name: "", budget: 0, earner1: 0, earner2: 0, actual: 0, notes: "" }, isNew: true });
+  };
+
+  const handleSave = (draft) => {
+    if (modal.isNew) {
+      addBill(year, monthIndex, draft);
+    } else {
+      updateBill(year, monthIndex, modal.data.id, draft);
+    }
+  };
+
   return (
     <div className="bg">
       <div className="bg-hdr">
         <span className="bg-title">Bills</span>
-        <button className="bg-add" onClick={() => addBill(year, monthIndex)}>+ Add</button>
+        <button className="bg-add" onClick={handleAdd}>+ Add</button>
       </div>
       <table className="bg-tbl">
         <thead>
           <tr>
             <th className="bg-th-name col-name">Item</th>
-            <th className="col-narrow"></th>
+            <th className="bg-th-pct col-narrow">%</th>
             <th className="bg-th-num col-num">Budget</th>
             {showSplit && <th className="bg-th-num col-num">{e1Name}</th>}
             {showSplit && <th className="bg-th-num col-num">{e2Name}</th>}
@@ -38,7 +54,7 @@ export default function BillsGrid({ year, monthIndex, bills }) {
               <td>
                 <EditableCell value={b.name} onChange={(v) => updateBill(year, monthIndex, b.id, { name: v })} />
               </td>
-              <td></td>
+              <td className="num muted">{income > 0 ? fmtPct(Math.round((b.budget / income) * 10000) / 100) : ""}</td>
               <td className="num">
                 <EditableCell value={b.budget} type="number" formatter={fmt} onChange={(v) => updateBill(year, monthIndex, b.id, { budget: v })} />
               </td>
@@ -58,8 +74,9 @@ export default function BillsGrid({ year, monthIndex, bills }) {
               <td>
                 <EditableCell value={b.notes} onChange={(v) => updateBill(year, monthIndex, b.id, { notes: v })} className="bg-notes" />
               </td>
-              <td>
-                <button className="bg-rm" onClick={() => removeBill(year, monthIndex, b.id)} title="Remove">×</button>
+              <td className="row-actions">
+                <button className="row-edit" onClick={() => setModal({ data: b, isNew: false })} title="Edit">✎</button>
+                <button className="bg-rm" onClick={() => { if (confirm(`Remove "${b.name || 'this bill'}"?`)) removeBill(year, monthIndex, b.id); }} title="Remove">×</button>
               </td>
             </tr>
           ))}
@@ -77,6 +94,16 @@ export default function BillsGrid({ year, monthIndex, bills }) {
           </tr>
         </tfoot>
       </table>
+      {modal && (
+        <RowModal
+          type="bill"
+          data={modal.data}
+          onSave={handleSave}
+          onClose={() => setModal(null)}
+          showSplit={showSplit}
+          earnerNames={[e1Name, e2Name]}
+        />
+      )}
     </div>
   );
 }

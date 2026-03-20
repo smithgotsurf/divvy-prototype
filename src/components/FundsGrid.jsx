@@ -1,17 +1,32 @@
+import { useState } from "react";
 import { useBudget } from "../context/BudgetContext";
 import EditableCell from "./EditableCell";
+import RowModal from "./RowModal";
 import { fmt, fundClosing } from "../shared/helpers";
 
 const fmtMin = (v) => v ? fmt(v) : "–";
 
 export default function FundsGrid({ year, monthIndex, funds }) {
   const { updateFund, addFund, removeFund } = useBudget();
+  const [modal, setModal] = useState(null);
+
+  const handleAdd = () => {
+    setModal({ data: { name: "", minBal: 0, opening: 0, transfersIn: 0, transfersOut: 0, notes: "" }, isNew: true });
+  };
+
+  const handleSave = (draft) => {
+    if (modal.isNew) {
+      addFund(year, monthIndex, draft);
+    } else {
+      updateFund(year, monthIndex, modal.data.id, draft);
+    }
+  };
 
   return (
     <div className="fg">
       <div className="fg-hdr">
         <span className="fg-title">Funds</span>
-        <button className="fg-add" onClick={() => addFund(year, monthIndex)}>+ Add</button>
+        <button className="fg-add" onClick={handleAdd}>+ Add</button>
       </div>
       <table className="fg-tbl">
         <thead>
@@ -56,14 +71,25 @@ export default function FundsGrid({ year, monthIndex, funds }) {
                 <td>
                   <EditableCell value={f.notes} onChange={(v) => updateFund(year, monthIndex, f.id, { notes: v })} className="bg-notes" />
                 </td>
-                <td>
-                  <button className="fg-rm" onClick={() => removeFund(year, monthIndex, f.id)} title="Remove">×</button>
+                <td className="row-actions">
+                  <button className="row-edit" onClick={() => setModal({ data: f, isNew: false })} title="Edit">✎</button>
+                  <button className="fg-rm" onClick={() => { if (confirm(`Remove "${f.name || 'this fund'}"?`)) removeFund(year, monthIndex, f.id); }} title="Remove">×</button>
                 </td>
               </tr>
             );
           })}
         </tbody>
       </table>
+      {modal && (
+        <RowModal
+          type="fund"
+          data={modal.data}
+          onSave={handleSave}
+          onClose={() => setModal(null)}
+          showSplit={false}
+          earnerNames={[]}
+        />
+      )}
     </div>
   );
 }
