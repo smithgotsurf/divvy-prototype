@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useBudget } from "../context/BudgetContext";
 import { TEMPLATES } from "../data";
+import { totalIncome } from "../shared/helpers";
 
-const STEPS = ["Start", "Earners", "Bills", "Allocations", "Funds"];
+const STEPS = ["Start", "Earners", "Budget Items", "Funds"];
 
 export default function SetupPage() {
   const { completeSetup } = useBudget();
@@ -11,7 +12,6 @@ export default function SetupPage() {
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState(0);
 
-  // Step 1: Earners
   const [earnerCount, setEarnerCount] = useState(1);
   const [earners, setEarners] = useState([
     { name: "", income: 0 },
@@ -19,26 +19,26 @@ export default function SetupPage() {
   ]);
   const [useSplit, setUseSplit] = useState(false);
 
-  // Step 2: Bills
-  const [bills, setBills] = useState([{ name: "", budget: 0, notes: "", autopay: false }]);
+  const [sections, setSections] = useState([
+    { name: "Bills", items: [{ name: "", budget: 0, notes: "" }] },
+  ]);
 
-  // Step 3: Allocations
-  const [allocations, setAllocations] = useState([{ name: "Grocery", pct: 13, fixed: false }]);
-
-  // Step 4: Funds
   const [funds, setFunds] = useState([{ name: "", opening: 0, minBal: 0 }]);
+
+  const income = totalIncome(earners.slice(0, earnerCount));
 
   const applyTemplate = (t) => {
     setEarnerCount(t.earnerCount);
     setEarners([...t.earners]);
     setUseSplit(t.useSplit);
-    setBills([...t.bills]);
-    setAllocations([...t.allocations]);
+    setSections(t.sections.map(s => ({
+      name: s.name,
+      items: s.items.map(item => ({ ...item })),
+    })));
     setFunds([...t.funds]);
     setStep(1);
   };
 
-  // Handle ?template= URL param (from Settings page)
   useEffect(() => {
     const key = searchParams.get("template");
     if (key && TEMPLATES[key]) {
@@ -52,16 +52,38 @@ export default function SetupPage() {
     setEarners(next);
   };
 
-  const updateBill = (i, field, value) => {
-    const next = [...bills];
-    next[i] = { ...next[i], [field]: field === "budget" ? (parseFloat(value) || 0) : field === "autopay" ? value : value };
-    setBills(next);
+  const updateSectionName = (si, name) => {
+    const next = [...sections];
+    next[si] = { ...next[si], name };
+    setSections(next);
   };
 
-  const updateAlloc = (i, field, value) => {
-    const next = [...allocations];
-    next[i] = { ...next[i], [field]: field === "pct" ? (parseFloat(value) || 0) : field === "fixed" ? value : value };
-    setAllocations(next);
+  const updateSectionItem = (si, ii, field, value) => {
+    const next = [...sections];
+    const items = [...next[si].items];
+    items[ii] = { ...items[ii], [field]: field === "budget" ? (parseFloat(value) || 0) : value };
+    next[si] = { ...next[si], items };
+    setSections(next);
+  };
+
+  const addItemToSection = (si) => {
+    const next = [...sections];
+    next[si] = { ...next[si], items: [...next[si].items, { name: "", budget: 0, notes: "" }] };
+    setSections(next);
+  };
+
+  const removeItemFromSection = (si, ii) => {
+    const next = [...sections];
+    next[si] = { ...next[si], items: next[si].items.filter((_, j) => j !== ii) };
+    setSections(next);
+  };
+
+  const addSection = () => {
+    setSections([...sections, { name: "New Section", items: [{ name: "", budget: 0, notes: "" }] }]);
+  };
+
+  const removeSection = (si) => {
+    setSections(sections.filter((_, i) => i !== si));
   };
 
   const updateFund = (i, field, value) => {
@@ -75,10 +97,14 @@ export default function SetupPage() {
       earners: earners.slice(0, earnerCount).filter(e => e.name),
       useSplit: earnerCount === 2 && useSplit,
     };
-    const validBills = bills.filter(b => b.name);
-    const validAllocs = allocations.filter(a => a.name && a.pct > 0);
+    const validSections = sections
+      .map(s => ({
+        name: s.name,
+        items: s.items.filter(item => item.name),
+      }))
+      .filter(s => s.items.length > 0);
     const validFunds = funds.filter(f => f.name);
-    completeSetup(profile, validBills, validAllocs, validFunds);
+    completeSetup(profile, validSections, validFunds);
     navigate("/");
   };
 
@@ -135,52 +161,45 @@ export default function SetupPage() {
 
       {step === 2 && (
         <div className="setup-panel">
-          <h3>Monthly Bills</h3>
-          <p className="setup-hint">Add your recurring bills. You can always add more later.</p>
-          <div className="setup-row setup-row-hdr">
-            <span>Name</span><span className="hdr-num">Amount</span><span>Notes</span><span className="hdr-check">Auto</span><span></span>
-          </div>
-          {bills.map((b, i) => (
-            <div key={i} className="setup-row">
-              <input placeholder="Bill name" value={b.name} onChange={(e) => updateBill(i, "name", e.target.value)} />
-              <input type="number" placeholder="Amount" value={b.budget || ""} onChange={(e) => updateBill(i, "budget", e.target.value)} />
-              <input placeholder="Notes" value={b.notes} onChange={(e) => updateBill(i, "notes", e.target.value)} />
-              <label className="setup-check-sm">
-                <input type="checkbox" checked={b.autopay} onChange={(e) => updateBill(i, "autopay", e.target.checked)} /> Auto
-              </label>
-              <button className="setup-rm" onClick={() => setBills(bills.filter((_, j) => j !== i))}>×</button>
+          <h3>Budget Items</h3>
+          <p className="setup-hint">Organize your budget into sections. You can always add more later.</p>
+          {sections.map((s, si) => (
+            <div key={si} className="setup-section-group">
+              <div className="setup-section-hdr">
+                <input
+                  className="setup-section-name"
+                  value={s.name}
+                  onChange={(e) => updateSectionName(si, e.target.value)}
+                  placeholder="Section name"
+                />
+                {sections.length > 1 && (
+                  <button className="setup-rm" onClick={() => removeSection(si)} title="Remove section">×</button>
+                )}
+              </div>
+              <div className="setup-row setup-row-hdr">
+                <span>Name</span>
+                <span className="hdr-num">Amount</span>
+                <span className="hdr-num">%</span>
+                <span></span>
+              </div>
+              {s.items.map((item, ii) => (
+                <div key={ii} className="setup-row">
+                  <input placeholder="Item name" value={item.name} onChange={(e) => updateSectionItem(si, ii, "name", e.target.value)} />
+                  <input type="number" placeholder="Amount" value={item.budget || ""} onChange={(e) => updateSectionItem(si, ii, "budget", e.target.value)} />
+                  <span className="setup-pct-display">
+                    {item.budget && income > 0 ? `${Math.round((item.budget / income) * 10000) / 100}%` : ""}
+                  </span>
+                  <button className="setup-rm" onClick={() => removeItemFromSection(si, ii)}>×</button>
+                </div>
+              ))}
+              <button className="setup-add" onClick={() => addItemToSection(si)}>+ Add Item</button>
             </div>
           ))}
-          <button className="setup-add" onClick={() => setBills([...bills, { name: "", budget: 0, notes: "", autopay: false }])}>
-            + Add Bill
-          </button>
+          <button className="setup-add" onClick={addSection} style={{ marginTop: 16 }}>+ Add Section</button>
         </div>
       )}
 
       {step === 3 && (
-        <div className="setup-panel">
-          <h3>Percentage Allocations</h3>
-          <p className="setup-hint">These are income-based amounts — like grocery, charity, and savings.</p>
-          <div className="setup-row setup-row-hdr">
-            <span>Name</span><span className="hdr-num">%</span><span className="hdr-check">Fixed</span><span></span>
-          </div>
-          {allocations.map((a, i) => (
-            <div key={i} className="setup-row">
-              <input placeholder="Name" value={a.name} onChange={(e) => updateAlloc(i, "name", e.target.value)} />
-              <input type="number" placeholder="%" value={a.pct || ""} onChange={(e) => updateAlloc(i, "pct", e.target.value)} />
-              <label className="setup-check-sm">
-                <input type="checkbox" checked={a.fixed} onChange={(e) => updateAlloc(i, "fixed", e.target.checked)} /> Fixed %
-              </label>
-              <button className="setup-rm" onClick={() => setAllocations(allocations.filter((_, j) => j !== i))}>×</button>
-            </div>
-          ))}
-          <button className="setup-add" onClick={() => setAllocations([...allocations, { name: "", pct: 0, fixed: false }])}>
-            + Add Allocation
-          </button>
-        </div>
-      )}
-
-      {step === 4 && (
         <div className="setup-panel">
           <h3>Funds to Track</h3>
           <p className="setup-hint">Track account balances alongside your budget.</p>
@@ -203,8 +222,8 @@ export default function SetupPage() {
 
       <div className="setup-nav">
         {step > 0 && <button className="setup-back" onClick={() => setStep(step - 1)}>Back</button>}
-        {step > 0 && step < 4 && <button className="setup-next" onClick={() => setStep(step + 1)}>Next</button>}
-        {step === 4 && <button className="setup-finish" onClick={finish}>Start Budgeting</button>}
+        {step > 0 && step < 3 && <button className="setup-next" onClick={() => setStep(step + 1)}>Next</button>}
+        {step === 3 && <button className="setup-finish" onClick={finish}>Start Budgeting</button>}
       </div>
     </div>
   );

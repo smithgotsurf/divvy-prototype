@@ -1142,6 +1142,41 @@ td.num.muted { font-size: 0.72rem; text-align: right; }
   margin: 0;
 }
 
+.setup-section-group {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+.setup-section-group:last-of-type { border-bottom: none; }
+
+.setup-section-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.setup-section-name {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  background: var(--surface-alt);
+  color: var(--text);
+  flex: 1;
+}
+.setup-section-name:focus { outline: none; border-color: var(--accent); }
+
+.setup-pct-display {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  min-width: 60px;
+  text-align: right;
+}
+
 /* ── Settings Page ── */
 .settings {
   max-width: 560px;
