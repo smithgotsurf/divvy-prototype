@@ -1,24 +1,21 @@
 import { useState } from "react";
 import { useBudget } from "../context/BudgetContext";
-import BillsGrid from "./BillsGrid";
-import AllocationsGrid from "./AllocationsGrid";
+import SectionGrid from "./SectionGrid";
 import FundsGrid from "./FundsGrid";
-import { fmt, monthNameFull, totalIncome, splitRatios, billsTotal, allocAmount } from "../shared/helpers";
+import ManageSectionsModal from "./ManageSectionsModal";
+import { fmt, monthNameFull, totalIncome, splitRatios, itemsTotal } from "../shared/helpers";
 
-export default function MonthCard({ monthData, ytdData, defaultCollapsed = false, isLatest = false, onClone, sectionStyle = "" }) {
-  const { profile } = useBudget();
+export default function MonthCard({ monthData, defaultCollapsed = false, isLatest = false, onClone, sectionStyle = "" }) {
+  const { addSection, renameSection, removeSection, updateMonth } = useBudget();
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
-  const { year, month, earners, bills, allocations, funds } = monthData;
+  const [showManage, setShowManage] = useState(false);
+  const { year, month, earners, sections, funds } = monthData;
 
   const income = totalIncome(earners);
   const ratios = splitRatios(earners);
 
-  const billsBudget = billsTotal(bills, "budget");
-  const billsActual = billsTotal(bills, "actual");
-  const allocBudget = allocations.reduce((s, a) => s + allocAmount(a.pct, income), 0);
-  const allocActual = allocations.reduce((s, a) => s + a.actual, 0);
-  const totalBudget = billsBudget + allocBudget;
-  const totalActual = billsActual + allocActual;
+  const totalBudget = sections.reduce((s, sec) => s + itemsTotal(sec.items, "budget"), 0);
+  const totalActual = sections.reduce((s, sec) => s + itemsTotal(sec.items, "actual"), 0);
   const delta = totalBudget - totalActual;
 
   return (
@@ -43,24 +40,42 @@ export default function MonthCard({ monthData, ytdData, defaultCollapsed = false
       {!collapsed && (
         <>
           <div className="mc-income">
-            {earners.map((e, i) => (
-              <span key={i}>
-                {e.name}: {fmt(e.income)}
-                {earners.length > 1 && ` (${Math.round(ratios[i] * 100)}%)`}
-              </span>
-            ))}
+            <div className="mc-income-left">
+              {earners.map((e, i) => (
+                <span key={i}>
+                  {e.name}: {fmt(e.income)}
+                  {earners.length > 1 && ` (${Math.round(ratios[i] * 100)}%)`}
+                </span>
+              ))}
+            </div>
+            <button className="mc-gear" onClick={() => setShowManage(true)}>⚙ Settings</button>
           </div>
 
-          <div className="mc-section mc-section--bills">
-            <BillsGrid year={year} monthIndex={month} bills={bills} />
-          </div>
-          <div className="mc-section mc-section--alloc">
-            <AllocationsGrid year={year} monthIndex={month} allocations={allocations} ytdData={ytdData} />
-          </div>
+          {sections.map((s) => (
+            <div key={s.id} className="mc-section">
+              <SectionGrid year={year} monthIndex={month} section={s} earners={earners} />
+            </div>
+          ))}
+
           <div className="mc-section mc-section--funds">
             <FundsGrid year={year} monthIndex={month} funds={funds} />
           </div>
         </>
+      )}
+
+      {showManage && (
+        <ManageSectionsModal
+          sections={sections}
+          earners={earners}
+          onAdd={(name) => addSection(year, month, name)}
+          onRename={(id, name) => renameSection(year, month, id, name)}
+          onRemove={(id) => removeSection(year, month, id)}
+          onUpdateEarner={(i, income) => updateMonth(year, month, (m) => ({
+            ...m,
+            earners: m.earners.map((e, idx) => idx === i ? { ...e, income } : e),
+          }))}
+          onClose={() => setShowManage(false)}
+        />
       )}
     </div>
   );

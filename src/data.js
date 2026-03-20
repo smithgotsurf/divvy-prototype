@@ -9,18 +9,17 @@ export const MONTHS = [
 // Factory: create a blank earner
 export const makeEarner = (name = "", income = 0) => ({ name, income });
 
-// Factory: create a blank bill line item
-export const makeBill = (name = "", budget = 0, earner1 = 0, earner2 = 0, actual = 0, notes = "", autopay = false) => ({
+// Factory: create a blank section (items get IDs assigned by makeMonth or addItem)
+export const makeSection = (name = "", items = []) => ({
   id: crypto.randomUUID(),
-  name, budget, earner1, earner2, actual, notes, autopay,
+  name,
+  items,
 });
 
-// Factory: create a blank allocation
-export const makeAllocation = (name = "", pct = 0, fixed = false, earner1 = 0, earner2 = 0) => ({
+// Factory: create a blank line item
+export const makeItem = (name = "", budget = 0, earner1 = 0, earner2 = 0, actual = 0, notes = "") => ({
   id: crypto.randomUUID(),
-  name, pct, fixed,
-  actual: 0,
-  earner1, earner2,
+  name, budget, earner1, earner2, actual, notes,
 });
 
 // Factory: create a blank fund
@@ -30,13 +29,16 @@ export const makeFund = (name = "", opening = 0, minBal = 0, notes = "") => ({
 });
 
 // Factory: create a month record
-export const makeMonth = (year, month, earners, bills, allocations, funds) => ({
+export const makeMonth = (year, month, earners, sections, funds) => ({
   id: `${year}-${String(month + 1).padStart(2, "0")}`,
   year,
   month, // 0-indexed
   earners: earners.map(e => ({ ...e })),
-  bills: bills.map(b => ({ ...b, id: crypto.randomUUID() })),
-  allocations: allocations.map(a => ({ ...a, id: crypto.randomUUID() })),
+  sections: sections.map(s => ({
+    ...s,
+    id: crypto.randomUUID(),
+    items: s.items.map(item => ({ ...item, id: crypto.randomUUID() })),
+  })),
   funds: funds.map(f => ({ ...f, id: crypto.randomUUID() })),
 });
 
@@ -58,18 +60,26 @@ export const TEMPLATE_DUAL = {
     { name: "Jack", income: 6500 },
     { name: "Jill", income: 4000 },
   ],
-  bills: [
-    { name: "Mortgage/Rent", budget: 2200, notes: "", autopay: false },
-    { name: "Utilities", budget: 250, notes: "", autopay: true },
-    { name: "Internet", budget: 80, notes: "", autopay: true },
-    { name: "Phone", budget: 120, notes: "", autopay: true },
-    { name: "Car Insurance", budget: 180, notes: "", autopay: false },
-    { name: "Subscriptions", budget: 60, notes: "", autopay: true },
-  ],
-  allocations: [
-    { name: "Grocery", pct: 12, fixed: false },
-    { name: "Savings", pct: 10, fixed: false },
-    { name: "Charity", pct: 5, fixed: true },
+  sections: [
+    {
+      name: "Fixed Bills",
+      items: [
+        { name: "Mortgage/Rent", budget: 2200, notes: "" },
+        { name: "Utilities", budget: 250, notes: "" },
+        { name: "Internet", budget: 80, notes: "" },
+        { name: "Phone", budget: 120, notes: "" },
+        { name: "Car Insurance", budget: 180, notes: "" },
+        { name: "Subscriptions", budget: 60, notes: "" },
+      ],
+    },
+    {
+      name: "Flexible Spending",
+      items: [
+        { name: "Grocery", budget: 1260, notes: "" },
+        { name: "Savings", budget: 1050, notes: "" },
+        { name: "Charity", budget: 525, notes: "" },
+      ],
+    },
   ],
   funds: [
     { name: "Joint Savings", opening: 5000, minBal: 1000 },
@@ -86,18 +96,26 @@ export const TEMPLATE_SINGLE = {
     { name: "Jack", income: 5500 },
     { name: "", income: 0 },
   ],
-  bills: [
-    { name: "Rent", budget: 1500, notes: "", autopay: false },
-    { name: "Utilities", budget: 180, notes: "", autopay: true },
-    { name: "Internet", budget: 70, notes: "", autopay: true },
-    { name: "Phone", budget: 80, notes: "", autopay: true },
-    { name: "Car Insurance", budget: 150, notes: "", autopay: false },
-    { name: "Subscriptions", budget: 45, notes: "", autopay: true },
-  ],
-  allocations: [
-    { name: "Grocery", pct: 12, fixed: false },
-    { name: "Savings", pct: 8, fixed: false },
-    { name: "Fun Money", pct: 5, fixed: false },
+  sections: [
+    {
+      name: "Fixed Bills",
+      items: [
+        { name: "Rent", budget: 1500, notes: "" },
+        { name: "Utilities", budget: 180, notes: "" },
+        { name: "Internet", budget: 70, notes: "" },
+        { name: "Phone", budget: 80, notes: "" },
+        { name: "Car Insurance", budget: 150, notes: "" },
+        { name: "Subscriptions", budget: 45, notes: "" },
+      ],
+    },
+    {
+      name: "Flexible Spending",
+      items: [
+        { name: "Grocery", budget: 660, notes: "" },
+        { name: "Savings", budget: 440, notes: "" },
+        { name: "Fun Money", budget: 275, notes: "" },
+      ],
+    },
   ],
   funds: [
     { name: "Savings Account", opening: 4000, minBal: 1000 },

@@ -18,13 +18,9 @@ export const monthNameFull = (m) =>
   ["January", "February", "March", "April", "May", "June",
    "July", "August", "September", "October", "November", "December"][m];
 
-// Sum bills budget
-export const billsTotal = (bills, field = "budget") =>
-  bills.reduce((s, b) => s + (b[field] || 0), 0);
-
-// Calculate allocation dollar amount from percentage and total income
-export const allocAmount = (pct, totalIncome) =>
-  Math.round(totalIncome * pct / 100);
+// Sum items budget
+export const itemsTotal = (items, field = "budget") =>
+  items.reduce((s, b) => s + (b[field] || 0), 0);
 
 // Total income from earners array
 export const totalIncome = (earners) =>

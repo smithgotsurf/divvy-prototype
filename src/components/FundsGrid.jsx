@@ -69,7 +69,7 @@ export default function FundsGrid({ year, monthIndex, funds }) {
                 </td>
                 <td className={`num ${belowMin ? "fg-below" : ""}`}>{fmt(closing)}</td>
                 <td>
-                  <EditableCell value={f.notes} onChange={(v) => updateFund(year, monthIndex, f.id, { notes: v })} className="bg-notes" />
+                  <EditableCell value={f.notes} onChange={(v) => updateFund(year, monthIndex, f.id, { notes: v })} className="fg-notes" />
                 </td>
                 <td className="row-actions">
                   <button className="row-edit" onClick={() => setModal({ data: f, isNew: false })} title="Edit">✎</button>

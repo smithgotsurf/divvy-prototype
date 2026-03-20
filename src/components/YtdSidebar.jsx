@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useBudget } from "../context/BudgetContext";
-import { fmt, totalIncome, allocAmount, billsTotal, monthNameFull } from "../shared/helpers";
+import { fmt, fundClosing } from "../shared/helpers";
 
 export default function YtdSidebar() {
   const { currentYear, getMonths } = useBudget();
@@ -9,60 +9,34 @@ export default function YtdSidebar() {
   const ytd = useMemo(() => {
     if (months.length === 0) return null;
 
-    // Aggregate bills by name
-    const billMap = {};
-    let totalBillsBudget = 0;
-    let totalBillsActual = 0;
-
-    // Aggregate allocations by name
-    const allocMap = {};
-    let totalAllocBudget = 0;
-    let totalAllocActual = 0;
-
-    // Fund balances (latest month's closing)
-    const latestMonth = months[months.length - 1];
+    const sectionMap = {};
+    let totalBudget = 0;
+    let totalActual = 0;
 
     for (const m of months) {
-      const income = totalIncome(m.earners);
-
-      for (const b of m.bills) {
-        if (!billMap[b.name]) billMap[b.name] = { budget: 0, actual: 0 };
-        billMap[b.name].budget += b.budget;
-        billMap[b.name].actual += b.actual;
-        totalBillsBudget += b.budget;
-        totalBillsActual += b.actual;
-      }
-
-      for (const a of m.allocations) {
-        if (!allocMap[a.name]) allocMap[a.name] = { budget: 0, actual: 0, pct: a.pct };
-        const budgetAmt = allocAmount(a.pct, income);
-        allocMap[a.name].budget += budgetAmt;
-        allocMap[a.name].actual += a.actual;
-        totalAllocBudget += budgetAmt;
-        totalAllocActual += a.actual;
+      for (const s of m.sections) {
+        if (!sectionMap[s.name]) sectionMap[s.name] = { items: {}, budget: 0, actual: 0 };
+        for (const item of s.items) {
+          if (!sectionMap[s.name].items[item.name]) sectionMap[s.name].items[item.name] = { budget: 0, actual: 0 };
+          sectionMap[s.name].items[item.name].budget += item.budget;
+          sectionMap[s.name].items[item.name].actual += item.actual;
+          sectionMap[s.name].budget += item.budget;
+          sectionMap[s.name].actual += item.actual;
+          totalBudget += item.budget;
+          totalActual += item.actual;
+        }
       }
     }
 
-    // Projection: annualize based on months elapsed
+    const latestMonth = months[months.length - 1];
     const monthsElapsed = months.length;
-    const projectionFactor = monthsElapsed > 0 ? 12 / monthsElapsed : 1;
 
-    return {
-      billMap,
-      allocMap,
-      totalBillsBudget,
-      totalBillsActual,
-      totalAllocBudget,
-      totalAllocActual,
-      latestMonth,
-      monthsElapsed,
-      projectionFactor,
-    };
+    return { sectionMap, totalBudget, totalActual, latestMonth, monthsElapsed };
   }, [months, currentYear]);
 
   if (!ytd) return <div className="ys-empty">No data yet</div>;
 
-  const { billMap, allocMap, totalBillsBudget, totalBillsActual, totalAllocBudget, totalAllocActual, monthsElapsed, projectionFactor } = ytd;
+  const { sectionMap, latestMonth, monthsElapsed } = ytd;
 
   const indicator = (budget, actual) => {
     if (actual === 0) return "";
@@ -76,54 +50,26 @@ export default function YtdSidebar() {
       <h3 className="ys-title">YTD Summary</h3>
       <p className="ys-sub">{monthsElapsed} month{monthsElapsed !== 1 ? "s" : ""} of data</p>
 
-      <div className="ys-section">
-        <h4>Bills</h4>
-        {Object.entries(billMap).map(([name, { budget, actual }]) => (
-          <div key={name} className={`ys-row ${indicator(budget, actual)}`}>
-            <span className="ys-name">{name}</span>
-            <span className="ys-vals">
-              {fmt(actual)} / {fmt(budget)}
-            </span>
-          </div>
-        ))}
-        <div className="ys-row ys-total">
-          <span>Bills Total</span>
-          <span>{fmt(totalBillsActual)} / {fmt(totalBillsBudget)}</span>
-        </div>
-      </div>
-
-      <div className="ys-section">
-        <h4>Allocations</h4>
-        {Object.entries(allocMap).map(([name, { budget, actual, pct }]) => (
-          <div key={name} className={`ys-row ${indicator(budget, actual)}`}>
-            <span className="ys-name">{name} ({pct}%)</span>
-            <span className="ys-vals">{fmt(actual)} / {fmt(budget)}</span>
-          </div>
-        ))}
-        <div className="ys-row ys-total">
-          <span>Allocations Total</span>
-          <span>{fmt(totalAllocActual)} / {fmt(totalAllocBudget)}</span>
-        </div>
-      </div>
-
-      <div className="ys-section">
-        <h4>Projected Year-End</h4>
-        {Object.entries(billMap).map(([name, { budget, actual }]) => {
-          const projected = Math.round(actual * projectionFactor);
-          const annualBudget = Math.round(budget * projectionFactor);
-          return (
-            <div key={name} className={`ys-row ${indicator(annualBudget, projected)}`}>
+      {Object.entries(sectionMap).map(([sectionName, { items, budget, actual }]) => (
+        <div key={sectionName} className="ys-section">
+          <h4>{sectionName}</h4>
+          {Object.entries(items).map(([name, { budget: b, actual: a }]) => (
+            <div key={name} className={`ys-row ${indicator(b, a)}`}>
               <span className="ys-name">{name}</span>
-              <span className="ys-vals">{fmt(projected)} / {fmt(annualBudget)}</span>
+              <span className="ys-vals">{fmt(a)} / {fmt(b)}</span>
             </div>
-          );
-        })}
-      </div>
+          ))}
+          <div className="ys-row ys-total">
+            <span>{sectionName} Total</span>
+            <span>{fmt(actual)} / {fmt(budget)}</span>
+          </div>
+        </div>
+      ))}
 
       <div className="ys-section">
         <h4>Fund Balances</h4>
-        {ytd.latestMonth.funds.map((f) => {
-          const closing = f.opening + f.transfersIn - f.transfersOut;
+        {latestMonth.funds.map((f) => {
+          const closing = fundClosing(f);
           const belowMin = closing < f.minBal;
           return (
             <div key={f.id} className={`ys-row ${belowMin ? "ys-over" : "ys-ok"}`}>

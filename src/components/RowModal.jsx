@@ -1,21 +1,15 @@
 import { useState, useEffect, useRef } from "react";
+import { splitRatios } from "../shared/helpers";
 
 // Field defs per section type
 const FIELDS = {
-  bill: [
+  item: [
     { key: "name", label: "Item", type: "text" },
-    { key: "budget", label: "Budget", type: "number" },
+    { key: "budget", label: "Budget", type: "number", hasPct: true },
     { key: "earner1", label: "__e1__", type: "number", split: true },
     { key: "earner2", label: "__e2__", type: "number", split: true },
     { key: "actual", label: "Actual", type: "number" },
     { key: "notes", label: "Notes", type: "text" },
-  ],
-  allocation: [
-    { key: "name", label: "Item", type: "text" },
-    { key: "budget", label: "Budget", type: "number", computed: true },
-    { key: "earner1", label: "__e1__", type: "number", split: true },
-    { key: "earner2", label: "__e2__", type: "number", split: true },
-    { key: "actual", label: "Actual", type: "number" },
   ],
   fund: [
     { key: "name", label: "Fund Name", type: "text" },
@@ -27,8 +21,12 @@ const FIELDS = {
   ],
 };
 
-export default function RowModal({ type, data, onSave, onClose, showSplit, earnerNames, income }) {
-  const [draft, setDraft] = useState({ ...data });
+export default function RowModal({ type, data, onSave, onClose, showSplit, earnerNames, income, earners }) {
+  const ratios = earners ? splitRatios(earners) : [];
+  const [draft, setDraft] = useState(() => ({
+    ...data,
+    _pct: income > 0 ? Math.round((data.budget / income) * 10000) / 100 : 0,
+  }));
   const backdropRef = useRef(null);
   const firstInputRef = useRef(null);
 
@@ -44,14 +42,26 @@ export default function RowModal({ type, data, onSave, onClose, showSplit, earne
 
   const set = (key, val) => setDraft(prev => ({ ...prev, [key]: val }));
 
+  const updateBudgetWithSplit = (budget) => {
+    setDraft(prev => {
+      const next = { ...prev, budget, _pct: income > 0 ? Math.round((budget / income) * 10000) / 100 : 0 };
+      if (showSplit && ratios.length === 2) {
+        next.earner1 = Math.round(budget * ratios[0]);
+        next.earner2 = budget - next.earner1;
+      }
+      return next;
+    });
+  };
+
   const handleSave = () => {
-    onSave(draft);
+    const { _pct, ...clean } = draft;
+    onSave(clean);
     onClose();
   };
 
   const fields = FIELDS[type].filter(f => !f.split || showSplit);
   const isNew = !data.name && !data.budget && !data.opening;
-  const title = isNew ? `Add ${type === "bill" ? "Bill" : type === "allocation" ? "Allocation" : "Fund"}` : `Edit ${draft.name || type}`;
+  const title = isNew ? `Add ${type === "item" ? "Item" : "Fund"}` : `Edit ${draft.name || type}`;
 
   return (
     <div className="rm-backdrop" ref={backdropRef} onClick={(e) => { if (e.target === backdropRef.current) onClose(); }}>
@@ -63,26 +73,42 @@ export default function RowModal({ type, data, onSave, onClose, showSplit, earne
         <div className="rm-body">
           {fields.map((f, i) => {
             const label = f.label.replace("__e1__", earnerNames?.[0] || "Earner 1").replace("__e2__", earnerNames?.[1] || "Earner 2");
-            const val = f.computed ? draft.budget : (draft[f.key] ?? "");
+            const val = draft[f.key] ?? "";
 
             return (
               <div className="rm-field" key={f.key}>
                 <label className="rm-label">{label}</label>
-                {f.computed ? (
+                {f.hasPct ? (
                   <div className="rm-row">
                     <input
                       ref={i === 0 ? firstInputRef : null}
                       className="rm-input rm-input-num"
                       type="number"
-                      value={val || ""}
-                      onChange={(e) => {
-                        const v = parseFloat(e.target.value) || 0;
-                        const newPct = income > 0 ? Math.round((v / income) * 10000) / 100 : 0;
-                        set("budget", v);
-                        set("pct", newPct);
-                      }}
+                      value={draft.budget || ""}
+                      placeholder="0"
+                      onChange={(e) => updateBudgetWithSplit(parseFloat(e.target.value) || 0)}
+                      onKeyDown={(e) => { if (e.key === "Enter") handleSave(); }}
                     />
-                    <span className="rm-pct">{draft.pct ? `${draft.pct}%` : ""}</span>
+                    <input
+                      className="rm-input rm-input-num rm-input-pct"
+                      type="number"
+                      value={draft._pct || ""}
+                      placeholder="%"
+                      onChange={(e) => {
+                        const pct = parseFloat(e.target.value) || 0;
+                        const newBudget = income > 0 ? Math.round(income * pct / 100) : 0;
+                        setDraft(prev => {
+                          const next = { ...prev, _pct: pct, budget: newBudget };
+                          if (showSplit && ratios.length === 2) {
+                            next.earner1 = Math.round(newBudget * ratios[0]);
+                            next.earner2 = newBudget - next.earner1;
+                          }
+                          return next;
+                        });
+                      }}
+                      onKeyDown={(e) => { if (e.key === "Enter") handleSave(); }}
+                    />
+                    <span className="rm-pct-label">%</span>
                   </div>
                 ) : (
                   <input
