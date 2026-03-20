@@ -1,9 +1,11 @@
 import { useMemo } from "react";
+import { useOutletContext } from "react-router-dom";
 import { useBudget } from "../context/BudgetContext";
 import MonthCard from "../components/MonthCard";
 import { allocAmount, totalIncome } from "../shared/helpers";
 
 export default function TimelinePage() {
+  const { sectionStyle } = useOutletContext();
   const { currentYear, getMonths, cloneMonth } = useBudget();
   const months = getMonths(currentYear);
 
@@ -45,6 +47,7 @@ export default function TimelinePage() {
           defaultCollapsed={m.id !== lastMonth.id}
           isLatest={m.id === lastMonth.id}
           onClone={() => cloneMonth(currentYear, lastMonth.month)}
+          sectionStyle={sectionStyle}
         />
       ))}
     </div>

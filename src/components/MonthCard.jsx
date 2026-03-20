@@ -5,7 +5,7 @@ import AllocationsGrid from "./AllocationsGrid";
 import FundsGrid from "./FundsGrid";
 import { fmt, monthNameFull, totalIncome, splitRatios, billsTotal, allocAmount } from "../shared/helpers";
 
-export default function MonthCard({ monthData, ytdData, defaultCollapsed = false, isLatest = false, onClone }) {
+export default function MonthCard({ monthData, ytdData, defaultCollapsed = false, isLatest = false, onClone, sectionStyle = "" }) {
   const { profile } = useBudget();
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const { year, month, earners, bills, allocations, funds } = monthData;
@@ -22,7 +22,7 @@ export default function MonthCard({ monthData, ytdData, defaultCollapsed = false
   const delta = totalBudget - totalActual;
 
   return (
-    <div className="mc" id={`month-${monthData.id}`}>
+    <div className={`mc${sectionStyle ? ` mc--variant-${sectionStyle}` : ""}`} id={`month-${monthData.id}`}>
       <div className="mc-hdr" onClick={() => setCollapsed(!collapsed)} style={{ cursor: "pointer" }}>
         <h2 className="mc-title">
           <span className="mc-chevron">{collapsed ? "▸" : "▾"}</span>
@@ -51,9 +51,15 @@ export default function MonthCard({ monthData, ytdData, defaultCollapsed = false
             ))}
           </div>
 
-          <BillsGrid year={year} monthIndex={month} bills={bills} />
-          <AllocationsGrid year={year} monthIndex={month} allocations={allocations} ytdData={ytdData} />
-          <FundsGrid year={year} monthIndex={month} funds={funds} />
+          <div className="mc-section mc-section--bills">
+            <BillsGrid year={year} monthIndex={month} bills={bills} />
+          </div>
+          <div className="mc-section mc-section--alloc">
+            <AllocationsGrid year={year} monthIndex={month} allocations={allocations} ytdData={ytdData} />
+          </div>
+          <div className="mc-section mc-section--funds">
+            <FundsGrid year={year} monthIndex={month} funds={funds} />
+          </div>
         </>
       )}
     </div>

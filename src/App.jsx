@@ -50,7 +50,7 @@ export default function App() {
 
       <div className="main">
         <div className="content">
-          <Outlet />
+          <Outlet context={{ sectionStyle: "d" }} />
         </div>
         {sidebarOpen && <aside className="sidebar"><YtdSidebar /></aside>}
       </div>
