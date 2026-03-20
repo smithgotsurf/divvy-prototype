@@ -1,42 +1,41 @@
 import { useMemo, useState } from "react";
 import { useBudget } from "../context/BudgetContext";
 import EditableCell from "../components/EditableCell";
-import { fmt, totalIncome, itemsTotal } from "../shared/helpers";
+import { fmt } from "../shared/helpers";
 
 export default function SummaryPage() {
   const { currentYear, getMonths } = useBudget();
   const months = getMonths(currentYear);
 
-  // Local state for next-year budget planning (not persisted — just a planning tool)
   const [nextYearBudgets, setNextYearBudgets] = useState({});
 
   const summary = useMemo(() => {
-    const billRows = {};
-    const allocRows = {};
+    const sectionMap = {};
 
     for (const m of months) {
-      const income = totalIncome(m.earners);
-
-      for (const b of m.bills) {
-        if (!billRows[b.name]) billRows[b.name] = { budget: 0, actual: 0 };
-        billRows[b.name].budget += b.budget;
-        billRows[b.name].actual += b.actual;
-      }
-
-      for (const a of m.allocations) {
-        if (!allocRows[a.name]) allocRows[a.name] = { budget: 0, actual: 0, pct: a.pct };
-        allocRows[a.name].budget += allocAmount(a.pct, income);
-        allocRows[a.name].actual += a.actual;
+      for (const s of m.sections) {
+        if (!sectionMap[s.name]) sectionMap[s.name] = {};
+        for (const item of s.items) {
+          if (!sectionMap[s.name][item.name]) sectionMap[s.name][item.name] = { budget: 0, actual: 0 };
+          sectionMap[s.name][item.name].budget += item.budget;
+          sectionMap[s.name][item.name].actual += item.actual;
+        }
       }
     }
 
-    return { billRows, allocRows };
+    return sectionMap;
   }, [months]);
-
-  const { billRows, allocRows } = summary;
 
   const monthCount = months.length;
   const projFactor = monthCount > 0 ? 12 / monthCount : 1;
+
+  const { grandBudget, grandActual } = useMemo(() => {
+    let b = 0, a = 0;
+    for (const items of Object.values(summary)) {
+      for (const { budget, actual } of Object.values(items)) { b += budget; a += actual; }
+    }
+    return { grandBudget: b, grandActual: a };
+  }, [summary]);
 
   return (
     <div className="sp">
@@ -55,52 +54,39 @@ export default function SummaryPage() {
           </tr>
         </thead>
         <tbody>
-          <tr className="sp-section"><td colSpan={6}>Bills</td></tr>
-          {Object.entries(billRows).map(([name, { budget, actual }]) => {
-            const delta = budget - actual;
-            const est = Math.round(actual * projFactor / 12);
-            return (
-              <tr key={name}>
-                <td>{name}</td>
-                <td className="num">{fmt(budget)}</td>
-                <td className="num">{fmt(actual)}</td>
-                <td className={`num ${delta >= 0 ? "under" : "over"}`}>{fmt(delta)}</td>
-                <td className="num muted">{fmt(est)}</td>
-                <td className="num">
-                  <EditableCell
-                    value={nextYearBudgets[name] ?? est}
-                    type="number"
-                    formatter={fmt}
-                    onChange={(v) => setNextYearBudgets(prev => ({ ...prev, [name]: v }))}
-                  />
-                </td>
-              </tr>
-            );
-          })}
-
-          <tr className="sp-section"><td colSpan={6}>Allocations</td></tr>
-          {Object.entries(allocRows).map(([name, { budget, actual, pct }]) => {
-            const delta = budget - actual;
-            return (
-              <tr key={name}>
-                <td>{name} ({pct}%)</td>
-                <td className="num">{fmt(budget)}</td>
-                <td className="num">{fmt(actual)}</td>
-                <td className={`num ${delta >= 0 ? "under" : "over"}`}>{fmt(delta)}</td>
-                <td className="num muted">—</td>
-                <td className="num muted">—</td>
-              </tr>
-            );
+          {Object.entries(summary).map(([sectionName, items]) => {
+            return [
+              <tr key={`section-${sectionName}`} className="sp-section">
+                <td colSpan={6}>{sectionName}</td>
+              </tr>,
+              ...Object.entries(items).map(([name, { budget, actual }]) => {
+                const delta = budget - actual;
+                const est = Math.round(actual * projFactor / 12);
+                return (
+                  <tr key={`${sectionName}-${name}`}>
+                    <td>{name}</td>
+                    <td className="num">{fmt(budget)}</td>
+                    <td className="num">{fmt(actual)}</td>
+                    <td className={`num ${delta >= 0 ? "under" : "over"}`}>{fmt(delta)}</td>
+                    <td className="num muted">{fmt(est)}</td>
+                    <td className="num">
+                      <EditableCell
+                        value={nextYearBudgets[`${sectionName}-${name}`] ?? est}
+                        type="number"
+                        formatter={fmt}
+                        onChange={(v) => setNextYearBudgets(prev => ({ ...prev, [`${sectionName}-${name}`]: v }))}
+                      />
+                    </td>
+                  </tr>
+                );
+              }),
+            ];
           })}
 
           <tr className="sp-totals">
             <td>Total</td>
-            <td className="num">
-              {fmt(Object.values(billRows).reduce((s, r) => s + r.budget, 0) + Object.values(allocRows).reduce((s, r) => s + r.budget, 0))}
-            </td>
-            <td className="num">
-              {fmt(Object.values(billRows).reduce((s, r) => s + r.actual, 0) + Object.values(allocRows).reduce((s, r) => s + r.actual, 0))}
-            </td>
+            <td className="num">{fmt(grandBudget)}</td>
+            <td className="num">{fmt(grandActual)}</td>
             <td></td>
             <td></td>
             <td></td>
