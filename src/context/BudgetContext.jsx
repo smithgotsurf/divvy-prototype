@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback } from "react";
-import { STORAGE_KEY, EMPTY_STATE, makeMonth, makeBill, makeAllocation, makeFund } from "../data";
-import { totalIncome, splitRatios, allocAmount, fundClosing } from "../shared/helpers";
+import { STORAGE_KEY, EMPTY_STATE, makeMonth, makeSection, makeItem, makeFund } from "../data";
+import { totalIncome, splitRatios, fundClosing } from "../shared/helpers";
 
 const BudgetContext = createContext();
 
@@ -79,18 +79,15 @@ export function BudgetProvider({ children }) {
       const targetYearData = prev.years[nextYear] || { months: [] };
       if (targetYearData.months.find(m => m.month === nextMonth)) return prev;
 
-      // Clone bills (keep budget + earner splits, zero out actuals)
-      const newBills = source.bills.map(b => ({
-        ...b,
+      // Clone sections (keep budget + earner splits, zero out actuals)
+      const newSections = source.sections.map(s => ({
+        ...s,
         id: crypto.randomUUID(),
-        actual: 0,
-      }));
-
-      // Clone allocations (zero out actuals)
-      const newAllocs = source.allocations.map(a => ({
-        ...a,
-        id: crypto.randomUUID(),
-        actual: 0,
+        items: s.items.map(item => ({
+          ...item,
+          id: crypto.randomUUID(),
+          actual: 0,
+        })),
       }));
 
       // Clone funds (opening = previous closing, zero transfers)
@@ -107,8 +104,7 @@ export function BudgetProvider({ children }) {
         year: nextYear,
         month: nextMonth,
         earners: source.earners.map(e => ({ ...e })),
-        bills: newBills,
-        allocations: newAllocs,
+        sections: newSections,
         funds: newFunds,
       };
 
@@ -127,53 +123,60 @@ export function BudgetProvider({ children }) {
     });
   }, [update]);
 
-  // --- Bill CRUD within a month ---
-  const updateBill = useCallback((year, monthIndex, billId, updates) => {
+  // --- Section CRUD within a month ---
+  const addSection = useCallback((year, monthIndex, name) => {
     updateMonth(year, monthIndex, (m) => ({
       ...m,
-      bills: m.bills.map(b => b.id === billId ? { ...b, ...updates } : b),
+      sections: [...m.sections, makeSection(name || "New Section")],
     }));
   }, [updateMonth]);
 
-  const addBill = useCallback((year, monthIndex, data) => {
-    const b = data
-      ? makeBill(data.name, data.budget, data.earner1, data.earner2, data.actual, data.notes, data.autopay)
-      : makeBill("New Bill", 0, 0, 0);
+  const renameSection = useCallback((year, monthIndex, sectionId, name) => {
     updateMonth(year, monthIndex, (m) => ({
       ...m,
-      bills: [...m.bills, b],
+      sections: m.sections.map(s => s.id === sectionId ? { ...s, name } : s),
     }));
   }, [updateMonth]);
 
-  const removeBill = useCallback((year, monthIndex, billId) => {
+  const removeSection = useCallback((year, monthIndex, sectionId) => {
     updateMonth(year, monthIndex, (m) => ({
       ...m,
-      bills: m.bills.filter(b => b.id !== billId),
+      sections: m.sections.filter(s => s.id !== sectionId),
     }));
   }, [updateMonth]);
 
-  // --- Allocation CRUD within a month ---
-  const updateAllocation = useCallback((year, monthIndex, allocId, updates) => {
+  // --- Item CRUD within a section ---
+  const addItem = useCallback((year, monthIndex, sectionId, data) => {
+    const item = data
+      ? makeItem(data.name, data.budget, data.earner1, data.earner2, data.actual, data.notes)
+      : makeItem("New Item");
     updateMonth(year, monthIndex, (m) => ({
       ...m,
-      allocations: m.allocations.map(a => a.id === allocId ? { ...a, ...updates } : a),
+      sections: m.sections.map(s =>
+        s.id === sectionId ? { ...s, items: [...s.items, item] } : s
+      ),
     }));
   }, [updateMonth]);
 
-  const addAllocation = useCallback((year, monthIndex, data) => {
-    const a = data
-      ? makeAllocation(data.name, data.pct, data.fixed, data.earner1, data.earner2)
-      : makeAllocation("New Allocation", 0, false, 0, 0);
+  const updateItem = useCallback((year, monthIndex, sectionId, itemId, updates) => {
     updateMonth(year, monthIndex, (m) => ({
       ...m,
-      allocations: [...m.allocations, a],
+      sections: m.sections.map(s =>
+        s.id === sectionId
+          ? { ...s, items: s.items.map(item => item.id === itemId ? { ...item, ...updates } : item) }
+          : s
+      ),
     }));
   }, [updateMonth]);
 
-  const removeAllocation = useCallback((year, monthIndex, allocId) => {
+  const removeItem = useCallback((year, monthIndex, sectionId, itemId) => {
     updateMonth(year, monthIndex, (m) => ({
       ...m,
-      allocations: m.allocations.filter(a => a.id !== allocId),
+      sections: m.sections.map(s =>
+        s.id === sectionId
+          ? { ...s, items: s.items.filter(item => item.id !== itemId) }
+          : s
+      ),
     }));
   }, [updateMonth]);
 
@@ -203,22 +206,17 @@ export function BudgetProvider({ children }) {
   }, [updateMonth]);
 
   // --- Setup ---
-  const completeSetup = useCallback((profile, bills, allocations, funds) => {
-    const income = totalIncome(profile.earners);
+  const completeSetup = useCallback((profile, sections, funds) => {
     const ratios = splitRatios(profile.earners);
 
-    const initBills = bills.map(b => {
-      const e1 = Math.round(b.budget * (ratios[0] || 1));
-      const e2 = b.budget - e1;
-      return makeBill(b.name, b.budget, e1, e2, 0, b.notes || "", b.autopay || false);
-    });
-
-    const initAllocations = allocations.map(a => {
-      const amt = allocAmount(a.pct, income);
-      const e1 = Math.round(amt * (ratios[0] || 1));
-      const e2 = amt - e1;
-      return makeAllocation(a.name, a.pct, a.fixed || false, e1, e2);
-    });
+    const initSections = sections.map(s => ({
+      name: s.name,
+      items: s.items.map(item => {
+        const e1 = Math.round(item.budget * (ratios[0] || 1));
+        const e2 = item.budget - e1;
+        return makeItem(item.name, item.budget, e1, e2, 0, item.notes || "");
+      }),
+    }));
 
     const initFunds = funds.map(f =>
       makeFund(f.name, f.opening || 0, f.minBal || 0)
@@ -228,7 +226,7 @@ export function BudgetProvider({ children }) {
     const year = now.getFullYear();
     const month = now.getMonth();
 
-    const firstMonth = makeMonth(year, month, profile.earners, initBills, initAllocations, initFunds);
+    const firstMonth = makeMonth(year, month, profile.earners, initSections, initFunds);
 
     const newState = {
       profile,
@@ -248,6 +246,47 @@ export function BudgetProvider({ children }) {
     if (!parsed.profile || !parsed.years || parsed.setupComplete === undefined) {
       throw new Error("Invalid Divvy budget file");
     }
+
+    // Migrate old format (bills + allocations) to sections
+    for (const yearKey of Object.keys(parsed.years)) {
+      const yearData = parsed.years[yearKey];
+      for (const m of yearData.months) {
+        if (m.bills && m.allocations && !m.sections) {
+          const income = totalIncome(m.earners);
+          m.sections = [
+            {
+              id: crypto.randomUUID(),
+              name: "Bills",
+              items: m.bills.map(b => ({
+                id: crypto.randomUUID(),
+                name: b.name,
+                budget: b.budget || 0,
+                actual: b.actual || 0,
+                earner1: b.earner1 || 0,
+                earner2: b.earner2 || 0,
+                notes: b.notes || "",
+              })),
+            },
+            {
+              id: crypto.randomUUID(),
+              name: "Allocations",
+              items: m.allocations.map(a => ({
+                id: crypto.randomUUID(),
+                name: a.name,
+                budget: a.budget || Math.round((a.pct || 0) * income / 100),
+                actual: a.actual || 0,
+                earner1: a.earner1 || 0,
+                earner2: a.earner2 || 0,
+                notes: "",
+              })),
+            },
+          ];
+          delete m.bills;
+          delete m.allocations;
+        }
+      }
+    }
+
     persist(parsed);
   }, [persist]);
 
@@ -268,12 +307,12 @@ export function BudgetProvider({ children }) {
       getMonth,
       updateMonth,
       cloneMonth,
-      updateBill,
-      addBill,
-      removeBill,
-      updateAllocation,
-      addAllocation,
-      removeAllocation,
+      addSection,
+      renameSection,
+      removeSection,
+      addItem,
+      updateItem,
+      removeItem,
       updateFund,
       addFund,
       removeFund,
