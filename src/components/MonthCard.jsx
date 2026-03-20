@@ -1,24 +1,21 @@
 import { useState } from "react";
 import { useBudget } from "../context/BudgetContext";
-import BillsGrid from "./BillsGrid";
-import AllocationsGrid from "./AllocationsGrid";
+import SectionGrid from "./SectionGrid";
 import FundsGrid from "./FundsGrid";
-import { fmt, monthNameFull, totalIncome, splitRatios, billsTotal, allocAmount } from "../shared/helpers";
+import ManageSectionsModal from "./ManageSectionsModal";
+import { fmt, monthNameFull, totalIncome, splitRatios, itemsTotal } from "../shared/helpers";
 
-export default function MonthCard({ monthData, ytdData, defaultCollapsed = false, isLatest = false, onClone, sectionStyle = "" }) {
-  const { profile } = useBudget();
+export default function MonthCard({ monthData, defaultCollapsed = false, isLatest = false, onClone, sectionStyle = "" }) {
+  const { addSection, renameSection, removeSection } = useBudget();
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
-  const { year, month, earners, bills, allocations, funds } = monthData;
+  const [showManage, setShowManage] = useState(false);
+  const { year, month, earners, sections, funds } = monthData;
 
   const income = totalIncome(earners);
   const ratios = splitRatios(earners);
 
-  const billsBudget = billsTotal(bills, "budget");
-  const billsActual = billsTotal(bills, "actual");
-  const allocBudget = allocations.reduce((s, a) => s + allocAmount(a.pct, income), 0);
-  const allocActual = allocations.reduce((s, a) => s + a.actual, 0);
-  const totalBudget = billsBudget + allocBudget;
-  const totalActual = billsActual + allocActual;
+  const totalBudget = sections.reduce((s, sec) => s + itemsTotal(sec.items, "budget"), 0);
+  const totalActual = sections.reduce((s, sec) => s + itemsTotal(sec.items, "actual"), 0);
   const delta = totalBudget - totalActual;
 
   return (
@@ -34,6 +31,7 @@ export default function MonthCard({ monthData, ytdData, defaultCollapsed = false
           <span className={delta >= 0 ? "under" : "over"}>
             {delta >= 0 ? "+" : ""}{fmt(delta)}
           </span>
+          <button className="mc-gear" onClick={(e) => { e.stopPropagation(); setShowManage(true); }} title="Manage sections">⚙</button>
           {isLatest && onClone && (
             <button className="mc-clone" onClick={(e) => { e.stopPropagation(); onClone(); }}>+ Clone</button>
           )}
@@ -51,16 +49,26 @@ export default function MonthCard({ monthData, ytdData, defaultCollapsed = false
             ))}
           </div>
 
-          <div className="mc-section mc-section--bills">
-            <BillsGrid year={year} monthIndex={month} bills={bills} />
-          </div>
-          <div className="mc-section mc-section--alloc">
-            <AllocationsGrid year={year} monthIndex={month} allocations={allocations} ytdData={ytdData} />
-          </div>
+          {sections.map((s) => (
+            <div key={s.id} className="mc-section">
+              <SectionGrid year={year} monthIndex={month} section={s} earners={earners} />
+            </div>
+          ))}
+
           <div className="mc-section mc-section--funds">
             <FundsGrid year={year} monthIndex={month} funds={funds} />
           </div>
         </>
+      )}
+
+      {showManage && (
+        <ManageSectionsModal
+          sections={sections}
+          onAdd={(name) => addSection(year, month, name)}
+          onRename={(id, name) => renameSection(year, month, id, name)}
+          onRemove={(id) => removeSection(year, month, id)}
+          onClose={() => setShowManage(false)}
+        />
       )}
     </div>
   );

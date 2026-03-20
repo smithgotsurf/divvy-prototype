@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useBudget } from "../context/BudgetContext";
 import EditableCell from "../components/EditableCell";
-import { fmt, totalIncome, allocAmount } from "../shared/helpers";
+import { fmt, totalIncome, itemsTotal } from "../shared/helpers";
 
 export default function SummaryPage() {
   const { currentYear, getMonths } = useBudget();
