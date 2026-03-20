@@ -40,10 +40,13 @@ export default function AllocationsGrid({ year, monthIndex, allocations, ytdData
                 <td>
                   <EditableCell value={a.name} onChange={(v) => updateAllocation(year, monthIndex, a.id, { name: v })} />
                 </td>
+                <td className="num muted">{fmtPct(a.pct)}</td>
                 <td className="num">
-                  <EditableCell value={a.pct} type="number" formatter={fmtPct} onChange={(v) => updateAllocation(year, monthIndex, a.id, { pct: v })} />
+                  <EditableCell value={budgetAmt} type="number" formatter={fmt} onChange={(v) => {
+                    const newPct = income > 0 ? Math.round((v / income) * 10000) / 100 : 0;
+                    updateAllocation(year, monthIndex, a.id, { pct: newPct });
+                  }} />
                 </td>
-                <td className="num">{fmt(budgetAmt)}</td>
                 {showSplit && (
                   <td className="num">
                     <EditableCell value={a.earner1} type="number" formatter={fmt} onChange={(v) => updateAllocation(year, monthIndex, a.id, { earner1: v })} />
@@ -59,7 +62,7 @@ export default function AllocationsGrid({ year, monthIndex, allocations, ytdData
                 </td>
                 <td className="ag-ytd">{ytd !== null ? `YTD: ${fmt(ytd)}` : ""}</td>
                 <td>
-                  <button className="ag-rm" onClick={() => removeAllocation(year, monthIndex, a.id)} title="Remove">×</button>
+                  <button className="ag-rm" onClick={() => { if (confirm(`Remove "${a.name || 'this allocation'}"?`)) removeAllocation(year, monthIndex, a.id); }} title="Remove">×</button>
                 </td>
               </tr>
             );

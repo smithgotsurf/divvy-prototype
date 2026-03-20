@@ -57,7 +57,7 @@ export default function FundsGrid({ year, monthIndex, funds }) {
                   <EditableCell value={f.notes} onChange={(v) => updateFund(year, monthIndex, f.id, { notes: v })} className="bg-notes" />
                 </td>
                 <td>
-                  <button className="fg-rm" onClick={() => removeFund(year, monthIndex, f.id)} title="Remove">×</button>
+                  <button className="fg-rm" onClick={() => { if (confirm(`Remove "${f.name || 'this fund'}"?`)) removeFund(year, monthIndex, f.id); }} title="Remove">×</button>
                 </td>
               </tr>
             );

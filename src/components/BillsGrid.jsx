@@ -59,7 +59,7 @@ export default function BillsGrid({ year, monthIndex, bills }) {
                 <EditableCell value={b.notes} onChange={(v) => updateBill(year, monthIndex, b.id, { notes: v })} className="bg-notes" />
               </td>
               <td>
-                <button className="bg-rm" onClick={() => removeBill(year, monthIndex, b.id)} title="Remove">×</button>
+                <button className="bg-rm" onClick={() => { if (confirm(`Remove "${b.name || 'this bill'}"?`)) removeBill(year, monthIndex, b.id); }} title="Remove">×</button>
               </td>
             </tr>
           ))}
