@@ -103,6 +103,7 @@ export default function SectionGrid({ year, monthIndex, section, earners }) {
           showSplit={showSplit}
           earnerNames={[e1Name, e2Name]}
           income={income}
+          earners={earners}
         />
       )}
     </div>

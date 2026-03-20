@@ -227,20 +227,18 @@ body {
 .mc-clone:hover { border-color: var(--accent); color: var(--accent); }
 
 .mc-gear {
-  font-size: 0.85rem;
-  width: 24px;
-  height: 24px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
-  border-radius: var(--radius);
   transition: all 0.15s;
 }
-.mc-gear:hover { color: var(--accent); }
+.mc-gear:hover { border-color: var(--accent); color: var(--accent); }
 
 .mc-chevron {
   display: inline-block;
@@ -259,13 +257,15 @@ body {
 
 .mc-income {
   display: flex;
-  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
   padding: 6px 16px;
   font-size: 0.78rem;
   color: var(--text-muted);
   border-bottom: 1px solid var(--border-light);
   background: var(--surface-alt);
 }
+.mc-income-left { display: flex; gap: 16px; }
 
 /* ── Section Separation ── */
 .mc-section { }
@@ -1258,6 +1258,25 @@ td.num.muted { font-size: 0.72rem; text-align: right; }
   transition: all 0.15s;
 }
 .ms-add-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.ms-group {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+.ms-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+.ms-earner-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.ms-earner-name {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  min-width: 80px;
+}
 
 /* ── Scrollbar ── */
 .content::-webkit-scrollbar, .sidebar::-webkit-scrollbar {

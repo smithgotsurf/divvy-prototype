@@ -6,7 +6,7 @@ import ManageSectionsModal from "./ManageSectionsModal";
 import { fmt, monthNameFull, totalIncome, splitRatios, itemsTotal } from "../shared/helpers";
 
 export default function MonthCard({ monthData, defaultCollapsed = false, isLatest = false, onClone, sectionStyle = "" }) {
-  const { addSection, renameSection, removeSection } = useBudget();
+  const { addSection, renameSection, removeSection, updateMonth } = useBudget();
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [showManage, setShowManage] = useState(false);
   const { year, month, earners, sections, funds } = monthData;
@@ -31,7 +31,6 @@ export default function MonthCard({ monthData, defaultCollapsed = false, isLates
           <span className={delta >= 0 ? "under" : "over"}>
             {delta >= 0 ? "+" : ""}{fmt(delta)}
           </span>
-          <button className="mc-gear" onClick={(e) => { e.stopPropagation(); setShowManage(true); }} title="Manage sections">⚙</button>
           {isLatest && onClone && (
             <button className="mc-clone" onClick={(e) => { e.stopPropagation(); onClone(); }}>+ Clone</button>
           )}
@@ -41,12 +40,15 @@ export default function MonthCard({ monthData, defaultCollapsed = false, isLates
       {!collapsed && (
         <>
           <div className="mc-income">
-            {earners.map((e, i) => (
-              <span key={i}>
-                {e.name}: {fmt(e.income)}
-                {earners.length > 1 && ` (${Math.round(ratios[i] * 100)}%)`}
-              </span>
-            ))}
+            <div className="mc-income-left">
+              {earners.map((e, i) => (
+                <span key={i}>
+                  {e.name}: {fmt(e.income)}
+                  {earners.length > 1 && ` (${Math.round(ratios[i] * 100)}%)`}
+                </span>
+              ))}
+            </div>
+            <button className="mc-gear" onClick={() => setShowManage(true)}>⚙ Settings</button>
           </div>
 
           {sections.map((s) => (
@@ -64,9 +66,14 @@ export default function MonthCard({ monthData, defaultCollapsed = false, isLates
       {showManage && (
         <ManageSectionsModal
           sections={sections}
+          earners={earners}
           onAdd={(name) => addSection(year, month, name)}
           onRename={(id, name) => renameSection(year, month, id, name)}
           onRemove={(id) => removeSection(year, month, id)}
+          onUpdateEarner={(i, income) => updateMonth(year, month, (m) => ({
+            ...m,
+            earners: m.earners.map((e, idx) => idx === i ? { ...e, income } : e),
+          }))}
           onClose={() => setShowManage(false)}
         />
       )}

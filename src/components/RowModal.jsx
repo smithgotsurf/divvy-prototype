@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { splitRatios } from "../shared/helpers";
 
 // Field defs per section type
 const FIELDS = {
@@ -20,7 +21,8 @@ const FIELDS = {
   ],
 };
 
-export default function RowModal({ type, data, onSave, onClose, showSplit, earnerNames, income }) {
+export default function RowModal({ type, data, onSave, onClose, showSplit, earnerNames, income, earners }) {
+  const ratios = earners ? splitRatios(earners) : [];
   const [draft, setDraft] = useState(() => ({
     ...data,
     _pct: income > 0 ? Math.round((data.budget / income) * 10000) / 100 : 0,
@@ -39,6 +41,17 @@ export default function RowModal({ type, data, onSave, onClose, showSplit, earne
   }, [onClose]);
 
   const set = (key, val) => setDraft(prev => ({ ...prev, [key]: val }));
+
+  const updateBudgetWithSplit = (budget) => {
+    setDraft(prev => {
+      const next = { ...prev, budget, _pct: income > 0 ? Math.round((budget / income) * 10000) / 100 : 0 };
+      if (showSplit && ratios.length === 2) {
+        next.earner1 = Math.round(budget * ratios[0]);
+        next.earner2 = budget - next.earner1;
+      }
+      return next;
+    });
+  };
 
   const handleSave = () => {
     const { _pct, ...clean } = draft;
@@ -73,11 +86,7 @@ export default function RowModal({ type, data, onSave, onClose, showSplit, earne
                       type="number"
                       value={draft.budget || ""}
                       placeholder="0"
-                      onChange={(e) => {
-                        const v = parseFloat(e.target.value) || 0;
-                        set("budget", v);
-                        set("_pct", income > 0 ? Math.round((v / income) * 10000) / 100 : 0);
-                      }}
+                      onChange={(e) => updateBudgetWithSplit(parseFloat(e.target.value) || 0)}
                       onKeyDown={(e) => { if (e.key === "Enter") handleSave(); }}
                     />
                     <input
@@ -87,8 +96,15 @@ export default function RowModal({ type, data, onSave, onClose, showSplit, earne
                       placeholder="%"
                       onChange={(e) => {
                         const pct = parseFloat(e.target.value) || 0;
-                        set("_pct", pct);
-                        set("budget", income > 0 ? Math.round(income * pct / 100) : 0);
+                        const newBudget = income > 0 ? Math.round(income * pct / 100) : 0;
+                        setDraft(prev => {
+                          const next = { ...prev, _pct: pct, budget: newBudget };
+                          if (showSplit && ratios.length === 2) {
+                            next.earner1 = Math.round(newBudget * ratios[0]);
+                            next.earner2 = newBudget - next.earner1;
+                          }
+                          return next;
+                        });
                       }}
                       onKeyDown={(e) => { if (e.key === "Enter") handleSave(); }}
                     />
