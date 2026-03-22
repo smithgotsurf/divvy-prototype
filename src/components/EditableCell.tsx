@@ -1,9 +1,18 @@
 import { useState, useRef, useEffect } from "react";
 
-export default function EditableCell({ value, onChange, type = "text", className = "", formatter, placeholder }) {
+interface EditableCellProps {
+  value: string | number;
+  onChange: (value: string | number) => void;
+  type?: "text" | "number";
+  className?: string;
+  formatter?: (value: number) => string;
+  placeholder?: string;
+}
+
+export default function EditableCell({ value, onChange, type = "text", className = "", formatter, placeholder }: EditableCellProps) {
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(value);
-  const inputRef = useRef(null);
+  const [draft, setDraft] = useState<string | number>(value);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (editing && inputRef.current) {
@@ -14,7 +23,7 @@ export default function EditableCell({ value, onChange, type = "text", className
 
   const commit = () => {
     setEditing(false);
-    const next = type === "number" ? (parseFloat(draft) || 0) : draft;
+    const next = type === "number" ? (parseFloat(draft as string) || 0) : draft;
     if (next !== value) onChange(next);
   };
 
@@ -23,7 +32,7 @@ export default function EditableCell({ value, onChange, type = "text", className
     setDraft(value);
   };
 
-  const handleKey = (e) => {
+  const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === "Tab") {
       e.preventDefault();
       commit();
@@ -45,7 +54,7 @@ export default function EditableCell({ value, onChange, type = "text", className
     );
   }
 
-  const display = formatter ? formatter(value) : value;
+  const display = formatter ? formatter(value as number) : value;
 
   return (
     <span

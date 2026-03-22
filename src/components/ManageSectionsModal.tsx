@@ -1,13 +1,25 @@
 import { useState, useRef, useEffect } from "react";
-import { fmt } from "../shared/helpers";
+import type { Section, Earner } from "../types";
 
-export default function ManageSectionsModal({ sections, earners, onAdd, onRename, onRemove, onUpdateEarner, onRemoveMonth, monthLabel, onClose }) {
+interface ManageSectionsModalProps {
+  sections: Section[];
+  earners: Earner[];
+  onAdd: (name: string) => void;
+  onRename: (id: string, name: string) => void;
+  onRemove: (id: string) => void;
+  onUpdateEarner: (index: number, income: number) => void;
+  onRemoveMonth?: () => void;
+  monthLabel?: string;
+  onClose: () => void;
+}
+
+export default function ManageSectionsModal({ sections, earners, onAdd, onRename, onRemove, onUpdateEarner, onRemoveMonth, monthLabel, onClose }: ManageSectionsModalProps) {
   const [newName, setNewName] = useState("");
-  const backdropRef = useRef(null);
-  const inputRef = useRef(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const handleKey = (e) => { if (e.key === "Escape") onClose(); };
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [onClose]);

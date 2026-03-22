@@ -5,7 +5,7 @@ import YtdSidebar from "./components/YtdSidebar";
 import { monthNameFull } from "./shared/helpers";
 
 export default function App() {
-  const { currentYear, setCurrentYear, state, getMonths, cloneMonth } = useBudget();
+  const { currentYear, setCurrentYear, state, getMonths, cloneMonth } = useBudget()!;
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const years = Object.keys(state.years).map(Number).sort();
   const navigate = useNavigate();

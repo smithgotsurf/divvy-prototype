@@ -1,8 +1,17 @@
 import { useState, useEffect, useRef } from "react";
+import type { Earner } from "../types";
 import { splitRatios } from "../shared/helpers";
 
+interface FieldDef {
+  key: string;
+  label: string;
+  type: "text" | "number";
+  hasPct?: boolean;
+  split?: boolean;
+}
+
 // Field defs per section type
-const FIELDS = {
+const FIELDS: Record<string, FieldDef[]> = {
   item: [
     { key: "name", label: "Item", type: "text" },
     { key: "budget", label: "Budget", type: "number", hasPct: true },
@@ -21,33 +30,44 @@ const FIELDS = {
   ],
 };
 
-export default function RowModal({ type, data, onSave, onClose, showSplit, earnerNames, income, earners }) {
+interface RowModalProps {
+  type: "item" | "fund";
+  data: Record<string, string | number>;
+  onSave: (draft: Record<string, string | number>) => void;
+  onClose: () => void;
+  showSplit: boolean;
+  earnerNames: string[];
+  income?: number;
+  earners?: Earner[];
+}
+
+export default function RowModal({ type, data, onSave, onClose, showSplit, earnerNames, income, earners }: RowModalProps) {
   const ratios = earners ? splitRatios(earners) : [];
-  const [draft, setDraft] = useState(() => ({
+  const [draft, setDraft] = useState<Record<string, string | number>>(() => ({
     ...data,
-    _pct: income > 0 ? Math.round((data.budget / income) * 10000) / 100 : 0,
+    _pct: income && income > 0 ? Math.round(((data.budget as number) / income) * 10000) / 100 : 0,
   }));
-  const backdropRef = useRef(null);
-  const firstInputRef = useRef(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const firstInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (firstInputRef.current) firstInputRef.current.focus();
   }, []);
 
   useEffect(() => {
-    const handleKey = (e) => { if (e.key === "Escape") onClose(); };
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [onClose]);
 
-  const set = (key, val) => setDraft(prev => ({ ...prev, [key]: val }));
+  const set = (key: string, val: string | number) => setDraft(prev => ({ ...prev, [key]: val }));
 
-  const updateBudgetWithSplit = (budget) => {
+  const updateBudgetWithSplit = (budget: number) => {
     setDraft(prev => {
-      const next = { ...prev, budget, _pct: income > 0 ? Math.round((budget / income) * 10000) / 100 : 0 };
+      const next: Record<string, string | number> = { ...prev, budget, _pct: income && income > 0 ? Math.round((budget / income) * 10000) / 100 : 0 };
       if (showSplit && ratios.length === 2) {
         next.earner1 = Math.round(budget * ratios[0]);
-        next.earner2 = budget - next.earner1;
+        next.earner2 = budget - (next.earner1 as number);
       }
       return next;
     });
@@ -96,12 +116,12 @@ export default function RowModal({ type, data, onSave, onClose, showSplit, earne
                       placeholder="%"
                       onChange={(e) => {
                         const pct = parseFloat(e.target.value) || 0;
-                        const newBudget = income > 0 ? Math.round(income * pct / 100) : 0;
+                        const newBudget = income && income > 0 ? Math.round(income * pct / 100) : 0;
                         setDraft(prev => {
-                          const next = { ...prev, _pct: pct, budget: newBudget };
+                          const next: Record<string, string | number> = { ...prev, _pct: pct, budget: newBudget };
                           if (showSplit && ratios.length === 2) {
                             next.earner1 = Math.round(newBudget * ratios[0]);
-                            next.earner2 = newBudget - next.earner1;
+                            next.earner2 = newBudget - (next.earner1 as number);
                           }
                           return next;
                         });

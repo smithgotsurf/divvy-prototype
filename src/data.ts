@@ -1,3 +1,5 @@
+import type { Earner, Item, Section, Fund, Month, BudgetState, Template } from "./types";
+
 export const STORAGE_KEY = "divvy-budget";
 
 // Month names for display
@@ -7,29 +9,35 @@ export const MONTHS = [
 ];
 
 // Factory: create a blank earner
-export const makeEarner = (name = "", income = 0) => ({ name, income });
+export const makeEarner = (name = "", income = 0): Earner => ({ name, income });
 
 // Factory: create a blank section (items get IDs assigned by makeMonth or addItem)
-export const makeSection = (name = "", items = []) => ({
+export const makeSection = (name = "", items: Item[] = []): Section => ({
   id: crypto.randomUUID(),
   name,
   items,
 });
 
 // Factory: create a blank line item
-export const makeItem = (name = "", budget = 0, earner1 = 0, earner2 = 0, actual = 0, notes = "") => ({
+export const makeItem = (name = "", budget = 0, earner1 = 0, earner2 = 0, actual = 0, notes = ""): Item => ({
   id: crypto.randomUUID(),
   name, budget, earner1, earner2, actual, notes,
 });
 
 // Factory: create a blank fund
-export const makeFund = (name = "", opening = 0, minBal = 0, notes = "") => ({
+export const makeFund = (name = "", opening = 0, minBal = 0, notes = ""): Fund => ({
   id: crypto.randomUUID(),
   name, opening, transfersIn: 0, transfersOut: 0, minBal, notes,
 });
 
 // Factory: create a month record
-export const makeMonth = (year, month, earners, sections, funds) => ({
+export const makeMonth = (
+  year: number,
+  month: number,
+  earners: Earner[],
+  sections: { name: string; items: { name: string; budget?: number; earner1?: number; earner2?: number; actual?: number; notes?: string }[] }[],
+  funds: { name: string; opening?: number; minBal?: number; notes?: string }[],
+): Month => ({
   id: `${year}-${String(month + 1).padStart(2, "0")}`,
   year,
   month, // 0-indexed
@@ -37,13 +45,13 @@ export const makeMonth = (year, month, earners, sections, funds) => ({
   sections: sections.map(s => ({
     ...s,
     id: crypto.randomUUID(),
-    items: s.items.map(item => ({ ...item, id: crypto.randomUUID() })),
+    items: s.items.map(item => ({ ...item, id: crypto.randomUUID() } as Item)),
   })),
-  funds: funds.map(f => ({ ...f, id: crypto.randomUUID() })),
+  funds: funds.map(f => ({ ...f, id: crypto.randomUUID() } as Fund)),
 });
 
 // Empty state — fresh start, redirects to setup
-export const EMPTY_STATE = {
+export const EMPTY_STATE: BudgetState = {
   profile: { earners: [], useSplit: false },
   years: {},
   currentYear: new Date().getFullYear(),
@@ -51,7 +59,7 @@ export const EMPTY_STATE = {
 };
 
 // Templates for setup wizard prefill
-export const TEMPLATE_DUAL = {
+export const TEMPLATE_DUAL: Template = {
   label: "Dual income household",
   description: "Two earners splitting bills proportionally",
   earnerCount: 2,
@@ -87,7 +95,7 @@ export const TEMPLATE_DUAL = {
   ],
 };
 
-export const TEMPLATE_SINGLE = {
+export const TEMPLATE_SINGLE: Template = {
   label: "Single income household",
   description: "One earner managing all expenses",
   earnerCount: 1,
@@ -123,4 +131,4 @@ export const TEMPLATE_SINGLE = {
   ],
 };
 
-export const TEMPLATES = { dual: TEMPLATE_DUAL, single: TEMPLATE_SINGLE };
+export const TEMPLATES: Record<string, Template> = { dual: TEMPLATE_DUAL, single: TEMPLATE_SINGLE };

@@ -1,24 +1,31 @@
 import { useState } from "react";
+import type { Fund } from "../types";
 import { useBudget } from "../context/BudgetContext";
 import EditableCell from "./EditableCell";
 import RowModal from "./RowModal";
 import { fmt, fundClosing } from "../shared/helpers";
 
-const fmtMin = (v) => v ? fmt(v) : "–";
+interface FundsGridProps {
+  year: number;
+  monthIndex: number;
+  funds: Fund[];
+}
 
-export default function FundsGrid({ year, monthIndex, funds }) {
+const fmtMin = (v: number): string => v ? fmt(v) : "–";
+
+export default function FundsGrid({ year, monthIndex, funds }: FundsGridProps) {
   const { updateFund, addFund, removeFund } = useBudget();
-  const [modal, setModal] = useState(null);
+  const [modal, setModal] = useState<{ data: Fund; isNew: boolean } | null>(null);
 
   const handleAdd = () => {
-    setModal({ data: { name: "", minBal: 0, opening: 0, transfersIn: 0, transfersOut: 0, notes: "" }, isNew: true });
+    setModal({ data: { id: "", name: "", minBal: 0, opening: 0, transfersIn: 0, transfersOut: 0, notes: "" }, isNew: true });
   };
 
-  const handleSave = (draft) => {
-    if (modal.isNew) {
-      addFund(year, monthIndex, draft);
+  const handleSave = (draft: Record<string, string | number>) => {
+    if (modal!.isNew) {
+      addFund(year, monthIndex, draft as unknown as Partial<Fund>);
     } else {
-      updateFund(year, monthIndex, modal.data.id, draft);
+      updateFund(year, monthIndex, modal!.data.id, draft as unknown as Partial<Fund>);
     }
   };
 
@@ -48,28 +55,28 @@ export default function FundsGrid({ year, monthIndex, funds }) {
             return (
               <tr key={f.id} className={belowMin ? "fg-warn" : ""}>
                 <td>
-                  <EditableCell value={f.name} onChange={(v) => updateFund(year, monthIndex, f.id, { name: v })} />
+                  <EditableCell value={f.name} onChange={(v) => updateFund(year, monthIndex, f.id, { name: v as string })} />
                 </td>
                 <td className="num fg-min-cell">
                   <EditableCell
                     value={f.minBal || ""}
                     type="number"
                     formatter={fmtMin}
-                    onChange={(v) => updateFund(year, monthIndex, f.id, { minBal: v || 0 })}
+                    onChange={(v) => updateFund(year, monthIndex, f.id, { minBal: (v as number) || 0 })}
                   />
                 </td>
                 <td className="num">
-                  <EditableCell value={f.opening} type="number" formatter={fmt} onChange={(v) => updateFund(year, monthIndex, f.id, { opening: v })} />
+                  <EditableCell value={f.opening} type="number" formatter={fmt} onChange={(v) => updateFund(year, monthIndex, f.id, { opening: v as number })} />
                 </td>
                 <td className="num">
-                  <EditableCell value={f.transfersIn} type="number" formatter={fmt} onChange={(v) => updateFund(year, monthIndex, f.id, { transfersIn: v })} />
+                  <EditableCell value={f.transfersIn} type="number" formatter={fmt} onChange={(v) => updateFund(year, monthIndex, f.id, { transfersIn: v as number })} />
                 </td>
                 <td className="num">
-                  <EditableCell value={f.transfersOut} type="number" formatter={fmt} onChange={(v) => updateFund(year, monthIndex, f.id, { transfersOut: v })} />
+                  <EditableCell value={f.transfersOut} type="number" formatter={fmt} onChange={(v) => updateFund(year, monthIndex, f.id, { transfersOut: v as number })} />
                 </td>
                 <td className={`num ${belowMin ? "fg-below" : ""}`}>{fmt(closing)}</td>
                 <td>
-                  <EditableCell value={f.notes} onChange={(v) => updateFund(year, monthIndex, f.id, { notes: v })} className="fg-notes" />
+                  <EditableCell value={f.notes} onChange={(v) => updateFund(year, monthIndex, f.id, { notes: v as string })} className="fg-notes" />
                 </td>
                 <td className="row-actions">
                   <button className="row-edit" onClick={() => setModal({ data: f, isNew: false })} title="Edit">✎</button>
@@ -83,7 +90,7 @@ export default function FundsGrid({ year, monthIndex, funds }) {
       {modal && (
         <RowModal
           type="fund"
-          data={modal.data}
+          data={modal.data as unknown as Record<string, string | number>}
           onSave={handleSave}
           onClose={() => setModal(null)}
           showSplit={false}

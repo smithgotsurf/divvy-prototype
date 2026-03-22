@@ -5,8 +5,8 @@ import { useBudget } from "../context/BudgetContext";
 export default function SettingsPage() {
   const { exportData, importData, resetData } = useBudget();
   const navigate = useNavigate();
-  const fileRef = useRef();
-  const [status, setStatus] = useState(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [status, setStatus] = useState<{ type: "success" | "error"; msg: string } | null>(null);
 
   const handleExport = () => {
     const json = exportData();
@@ -19,18 +19,18 @@ export default function SettingsPage() {
     URL.revokeObjectURL(url);
   };
 
-  const handleImport = (e) => {
-    const file = e.target.files[0];
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
       try {
-        importData(ev.target.result);
+        importData(ev.target?.result as string);
         setStatus({ type: "success", msg: "Imported successfully" });
       } catch {
         setStatus({ type: "error", msg: "Invalid file format" });
       }
-      fileRef.current.value = "";
+      if (fileRef.current) fileRef.current.value = "";
     };
     reader.readAsText(file);
   };
@@ -41,7 +41,7 @@ export default function SettingsPage() {
     navigate("/setup");
   };
 
-  const handleTemplate = (key) => {
+  const handleTemplate = (key: string) => {
     if (!window.confirm("This will replace all current data. Continue?")) return;
     resetData();
     navigate(`/setup?template=${key}`);
@@ -56,7 +56,7 @@ export default function SettingsPage() {
         <p>Export your budget data as a JSON file, or import a previously exported file.</p>
         <div className="settings-actions">
           <button className="settings-btn" onClick={handleExport}>Export Data</button>
-          <button className="settings-btn" onClick={() => fileRef.current.click()}>Import Data</button>
+          <button className="settings-btn" onClick={() => fileRef.current?.click()}>Import Data</button>
           <input ref={fileRef} type="file" accept=".json" onChange={handleImport} style={{ display: "none" }} />
           <button className="settings-btn settings-btn-danger" onClick={handleReset}>Reset All Data</button>
         </div>

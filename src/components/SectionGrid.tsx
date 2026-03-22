@@ -1,12 +1,20 @@
 import { useState } from "react";
+import type { Section, Earner, Item } from "../types";
 import { useBudget } from "../context/BudgetContext";
 import EditableCell from "./EditableCell";
 import RowModal from "./RowModal";
 import { fmt, fmtPct, itemsTotal, totalIncome } from "../shared/helpers";
 
-export default function SectionGrid({ year, monthIndex, section, earners }) {
+interface SectionGridProps {
+  year: number;
+  monthIndex: number;
+  section: Section;
+  earners: Earner[];
+}
+
+export default function SectionGrid({ year, monthIndex, section, earners }: SectionGridProps) {
   const { updateItem, addItem, removeItem } = useBudget();
-  const [modal, setModal] = useState(null); // { data, isNew }
+  const [modal, setModal] = useState<{ data: Item; isNew: boolean } | null>(null);
   const income = totalIncome(earners);
   const showSplit = earners.length === 2;
   const e1Name = earners[0]?.name || "Earner 1";
@@ -18,14 +26,14 @@ export default function SectionGrid({ year, monthIndex, section, earners }) {
   const actualTotal = itemsTotal(section.items, "actual");
 
   const handleAdd = () => {
-    setModal({ data: { name: "", budget: 0, earner1: 0, earner2: 0, actual: 0, notes: "" }, isNew: true });
+    setModal({ data: { id: "", name: "", budget: 0, earner1: 0, earner2: 0, actual: 0, notes: "" }, isNew: true });
   };
 
-  const handleSave = (draft) => {
-    if (modal.isNew) {
-      addItem(year, monthIndex, section.id, draft);
+  const handleSave = (draft: Record<string, string | number>) => {
+    if (modal!.isNew) {
+      addItem(year, monthIndex, section.id, draft as unknown as Partial<Item>);
     } else {
-      updateItem(year, monthIndex, section.id, modal.data.id, draft);
+      updateItem(year, monthIndex, section.id, modal!.data.id, draft as unknown as Partial<Item>);
     }
   };
 
@@ -52,27 +60,27 @@ export default function SectionGrid({ year, monthIndex, section, earners }) {
           {section.items.map((item) => (
             <tr key={item.id} className={item.actual > item.budget && item.actual > 0 ? "sg-over" : ""}>
               <td>
-                <EditableCell value={item.name} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { name: v })} />
+                <EditableCell value={item.name} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { name: v as string })} />
               </td>
               <td className="num muted">{income > 0 ? fmtPct(Math.round((item.budget / income) * 10000) / 100) : ""}</td>
               <td className="num">
-                <EditableCell value={item.budget} type="number" formatter={fmt} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { budget: v })} />
+                <EditableCell value={item.budget} type="number" formatter={fmt} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { budget: v as number })} />
               </td>
               {showSplit && (
                 <td className="num">
-                  <EditableCell value={item.earner1} type="number" formatter={fmt} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { earner1: v })} />
+                  <EditableCell value={item.earner1} type="number" formatter={fmt} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { earner1: v as number })} />
                 </td>
               )}
               {showSplit && (
                 <td className="num">
-                  <EditableCell value={item.earner2} type="number" formatter={fmt} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { earner2: v })} />
+                  <EditableCell value={item.earner2} type="number" formatter={fmt} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { earner2: v as number })} />
                 </td>
               )}
               <td className="num">
-                <EditableCell value={item.actual} type="number" formatter={fmt} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { actual: v })} />
+                <EditableCell value={item.actual} type="number" formatter={fmt} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { actual: v as number })} />
               </td>
               <td>
-                <EditableCell value={item.notes} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { notes: v })} className="sg-notes" />
+                <EditableCell value={item.notes} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { notes: v as string })} className="sg-notes" />
               </td>
               <td className="row-actions">
                 <button className="row-edit" onClick={() => setModal({ data: item, isNew: false })} title="Edit">✎</button>
@@ -97,7 +105,7 @@ export default function SectionGrid({ year, monthIndex, section, earners }) {
       {modal && (
         <RowModal
           type="item"
-          data={modal.data}
+          data={modal.data as unknown as Record<string, string | number>}
           onSave={handleSave}
           onClose={() => setModal(null)}
           showSplit={showSplit}

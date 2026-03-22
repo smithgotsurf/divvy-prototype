@@ -3,7 +3,7 @@ import { useBudget } from "../context/BudgetContext";
 import MonthCard from "../components/MonthCard";
 
 export default function TimelinePage() {
-  const { sectionStyle } = useOutletContext();
+  const { sectionStyle } = useOutletContext<{ sectionStyle: string }>();
   const { currentYear, getMonths, cloneMonth, removeMonth } = useBudget();
   const months = getMonths(currentYear);
 

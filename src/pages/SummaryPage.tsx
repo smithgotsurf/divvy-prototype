@@ -7,10 +7,10 @@ export default function SummaryPage() {
   const { currentYear, getMonths } = useBudget();
   const months = getMonths(currentYear);
 
-  const [nextYearBudgets, setNextYearBudgets] = useState({});
+  const [nextYearBudgets, setNextYearBudgets] = useState<Record<string, number>>({});
 
   const summary = useMemo(() => {
-    const sectionMap = {};
+    const sectionMap: Record<string, Record<string, { budget: number; actual: number }>> = {};
 
     for (const m of months) {
       for (const s of m.sections) {
@@ -74,7 +74,7 @@ export default function SummaryPage() {
                         value={nextYearBudgets[`${sectionName}-${name}`] ?? est}
                         type="number"
                         formatter={fmt}
-                        onChange={(v) => setNextYearBudgets(prev => ({ ...prev, [`${sectionName}-${name}`]: v }))}
+                        onChange={(v) => setNextYearBudgets(prev => ({ ...prev, [`${sectionName}-${name}`]: v as number }))}
                       />
                     </td>
                   </tr>

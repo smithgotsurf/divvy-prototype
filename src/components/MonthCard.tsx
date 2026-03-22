@@ -1,17 +1,26 @@
 import { useState } from "react";
+import type { Month } from "../types";
 import { useBudget } from "../context/BudgetContext";
 import SectionGrid from "./SectionGrid";
 import FundsGrid from "./FundsGrid";
 import ManageSectionsModal from "./ManageSectionsModal";
-import { fmt, monthNameFull, totalIncome, splitRatios, itemsTotal } from "../shared/helpers";
+import { fmt, monthNameFull, splitRatios, itemsTotal } from "../shared/helpers";
 
-export default function MonthCard({ monthData, defaultCollapsed = false, isLatest = false, onClone, onRemove, sectionStyle = "" }) {
+interface MonthCardProps {
+  monthData: Month;
+  defaultCollapsed?: boolean;
+  isLatest?: boolean;
+  onClone?: () => void;
+  onRemove?: () => void;
+  sectionStyle?: string;
+}
+
+export default function MonthCard({ monthData, defaultCollapsed = false, isLatest = false, onClone, onRemove, sectionStyle = "" }: MonthCardProps) {
   const { addSection, renameSection, removeSection, updateMonth } = useBudget();
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [showManage, setShowManage] = useState(false);
   const { year, month, earners, sections, funds } = monthData;
 
-  const income = totalIncome(earners);
   const ratios = splitRatios(earners);
 
   const totalBudget = sections.reduce((s, sec) => s + itemsTotal(sec.items, "budget"), 0);
@@ -70,7 +79,7 @@ export default function MonthCard({ monthData, defaultCollapsed = false, isLates
           onAdd={(name) => addSection(year, month, name)}
           onRename={(id, name) => renameSection(year, month, id, name)}
           onRemove={(id) => removeSection(year, month, id)}
-          onUpdateEarner={(i, income) => updateMonth(year, month, (m) => ({
+          onUpdateEarner={(i: number, income: number) => updateMonth(year, month, (m: Month) => ({
             ...m,
             earners: m.earners.map((e, idx) => idx === i ? { ...e, income } : e),
           }))}

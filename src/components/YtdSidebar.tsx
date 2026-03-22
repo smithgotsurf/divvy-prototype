@@ -1,15 +1,35 @@
 import { useMemo } from "react";
+import type { Month } from "../types";
 import { useBudget } from "../context/BudgetContext";
 import { fmt, fundClosing } from "../shared/helpers";
+
+interface YtdItemData {
+  budget: number;
+  actual: number;
+}
+
+interface YtdSectionData {
+  items: Record<string, YtdItemData>;
+  budget: number;
+  actual: number;
+}
+
+interface YtdData {
+  sectionMap: Record<string, YtdSectionData>;
+  totalBudget: number;
+  totalActual: number;
+  latestMonth: Month;
+  monthsElapsed: number;
+}
 
 export default function YtdSidebar() {
   const { currentYear, getMonths } = useBudget();
   const months = getMonths(currentYear);
 
-  const ytd = useMemo(() => {
+  const ytd = useMemo((): YtdData | null => {
     if (months.length === 0) return null;
 
-    const sectionMap = {};
+    const sectionMap: Record<string, YtdSectionData> = {};
     let totalBudget = 0;
     let totalActual = 0;
 
@@ -38,7 +58,7 @@ export default function YtdSidebar() {
 
   const { sectionMap, latestMonth, monthsElapsed } = ytd;
 
-  const indicator = (budget, actual) => {
+  const indicator = (budget: number, actual: number): string => {
     if (actual === 0) return "";
     if (actual > budget) return "ys-over";
     if (actual > budget * 0.9) return "ys-warn";

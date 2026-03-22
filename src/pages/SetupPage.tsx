@@ -2,7 +2,19 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useBudget } from "../context/BudgetContext";
 import { TEMPLATES } from "../data";
+import type { Template, Earner, TemplateSection, TemplateFund } from "../types";
 import { totalIncome } from "../shared/helpers";
+
+interface SetupItem {
+  name: string;
+  budget: number;
+  notes: string;
+}
+
+interface SetupSection {
+  name: string;
+  items: SetupItem[];
+}
 
 const STEPS = ["Start", "Earners", "Budget Items", "Funds"];
 
@@ -13,21 +25,21 @@ export default function SetupPage() {
   const [step, setStep] = useState(0);
 
   const [earnerCount, setEarnerCount] = useState(1);
-  const [earners, setEarners] = useState([
+  const [earners, setEarners] = useState<Earner[]>([
     { name: "", income: 0 },
     { name: "", income: 0 },
   ]);
   const [useSplit, setUseSplit] = useState(false);
 
-  const [sections, setSections] = useState([
+  const [sections, setSections] = useState<SetupSection[]>([
     { name: "Bills", items: [{ name: "", budget: 0, notes: "" }] },
   ]);
 
-  const [funds, setFunds] = useState([{ name: "", opening: 0, minBal: 0 }]);
+  const [funds, setFunds] = useState<TemplateFund[]>([{ name: "", opening: 0, minBal: 0 }]);
 
   const income = totalIncome(earners.slice(0, earnerCount));
 
-  const applyTemplate = (t) => {
+  const applyTemplate = (t: Template) => {
     setEarnerCount(t.earnerCount);
     setEarners([...t.earners]);
     setUseSplit(t.useSplit);
@@ -46,19 +58,19 @@ export default function SetupPage() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const updateEarner = (i, field, value) => {
+  const updateEarner = (i: number, field: string, value: string) => {
     const next = [...earners];
     next[i] = { ...next[i], [field]: field === "income" ? (parseFloat(value) || 0) : value };
     setEarners(next);
   };
 
-  const updateSectionName = (si, name) => {
+  const updateSectionName = (si: number, name: string) => {
     const next = [...sections];
     next[si] = { ...next[si], name };
     setSections(next);
   };
 
-  const updateSectionItem = (si, ii, field, value) => {
+  const updateSectionItem = (si: number, ii: number, field: string, value: string) => {
     const next = [...sections];
     const items = [...next[si].items];
     items[ii] = { ...items[ii], [field]: field === "budget" ? (parseFloat(value) || 0) : value };
@@ -66,13 +78,13 @@ export default function SetupPage() {
     setSections(next);
   };
 
-  const addItemToSection = (si) => {
+  const addItemToSection = (si: number) => {
     const next = [...sections];
     next[si] = { ...next[si], items: [...next[si].items, { name: "", budget: 0, notes: "" }] };
     setSections(next);
   };
 
-  const removeItemFromSection = (si, ii) => {
+  const removeItemFromSection = (si: number, ii: number) => {
     const next = [...sections];
     next[si] = { ...next[si], items: next[si].items.filter((_, j) => j !== ii) };
     setSections(next);
@@ -82,11 +94,11 @@ export default function SetupPage() {
     setSections([...sections, { name: "New Section", items: [{ name: "", budget: 0, notes: "" }] }]);
   };
 
-  const removeSection = (si) => {
+  const removeSection = (si: number) => {
     setSections(sections.filter((_, i) => i !== si));
   };
 
-  const updateFund = (i, field, value) => {
+  const updateFund = (i: number, field: string, value: string) => {
     const next = [...funds];
     next[i] = { ...next[i], [field]: ["opening", "minBal"].includes(field) ? (parseFloat(value) || 0) : value };
     setFunds(next);
@@ -97,13 +109,13 @@ export default function SetupPage() {
       earners: earners.slice(0, earnerCount).filter(e => e.name),
       useSplit: earnerCount === 2 && useSplit,
     };
-    const validSections = sections
+    const validSections: TemplateSection[] = sections
       .map(s => ({
         name: s.name,
         items: s.items.filter(item => item.name),
       }))
       .filter(s => s.items.length > 0);
-    const validFunds = funds.filter(f => f.name);
+    const validFunds: TemplateFund[] = funds.filter(f => f.name);
     completeSetup(profile, validSections, validFunds);
     navigate("/");
   };
