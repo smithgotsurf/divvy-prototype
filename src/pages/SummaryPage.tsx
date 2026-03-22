@@ -43,25 +43,25 @@ export default function SummaryPage() {
   }, [summary]);
 
   return (
-    <div className="sp">
+    <div className="max-w-5xl mx-auto">
       <h2>{currentYear} Summary</h2>
-      <p className="sp-sub">{monthCount} of 12 months</p>
+      <p className="text-sm text-secondary mb-4">{monthCount} of 12 months</p>
 
-      <table className="sp-tbl">
+      <table className="table table-sm w-full">
         <thead>
           <tr>
             <th>Item</th>
-            <th className="num">Annual Budget</th>
-            <th className="num">Annual Actual</th>
-            <th className="num">Delta</th>
-            <th className="num">{currentYear + 1} Est</th>
-            <th className="num">{currentYear + 1} Budget</th>
+            <th className="text-right font-mono">Annual Budget</th>
+            <th className="text-right font-mono">Annual Actual</th>
+            <th className="text-right font-mono">Delta</th>
+            <th className="text-right font-mono">{currentYear + 1} Est</th>
+            <th className="text-right font-mono">{currentYear + 1} Budget</th>
           </tr>
         </thead>
         <tbody>
           {Object.entries(summary).map(([sectionName, items]) => {
             return [
-              <tr key={`section-${sectionName}`} className="sp-section">
+              <tr key={`section-${sectionName}`} className="bg-base-200 font-bold">
                 <td colSpan={6}>{sectionName}</td>
               </tr>,
               ...Object.entries(items).map(([name, { budget, actual }]) => {
@@ -70,11 +70,15 @@ export default function SummaryPage() {
                 return (
                   <tr key={`${sectionName}-${name}`}>
                     <td>{name}</td>
-                    <td className="num">{fmt(budget)}</td>
-                    <td className="num">{fmt(actual)}</td>
-                    <td className={`num ${delta >= 0 ? "under" : "over"}`}>{fmt(delta)}</td>
-                    <td className="num muted">{fmt(est)}</td>
-                    <td className="num">
+                    <td className="text-right font-mono">{fmt(budget)}</td>
+                    <td className="text-right font-mono">{fmt(actual)}</td>
+                    <td
+                      className={`text-right font-mono ${delta >= 0 ? "text-success" : "text-error"}`}
+                    >
+                      {fmt(delta)}
+                    </td>
+                    <td className="text-right font-mono text-base-content/50">{fmt(est)}</td>
+                    <td className="text-right font-mono">
                       <EditableCell
                         value={nextYearBudgets[`${sectionName}-${name}`] ?? est}
                         type="number"
@@ -93,10 +97,10 @@ export default function SummaryPage() {
             ];
           })}
 
-          <tr className="sp-totals">
+          <tr className="font-bold border-t-2 border-base-300">
             <td>Total</td>
-            <td className="num">{fmt(grandBudget)}</td>
-            <td className="num">{fmt(grandActual)}</td>
+            <td className="text-right font-mono">{fmt(grandBudget)}</td>
+            <td className="text-right font-mono">{fmt(grandActual)}</td>
             <td></td>
             <td></td>
             <td></td>

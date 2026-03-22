@@ -131,30 +131,34 @@ export default function SetupPage() {
   };
 
   return (
-    <div className="setup">
+    <div className="max-w-2xl mx-auto p-6">
       <h2>Set Up Divvy</h2>
-      <div className="setup-steps">
+      <ul className="steps mb-8">
         {STEPS.map((s, i) => (
-          <span
-            key={s}
-            className={`setup-step ${i === step ? "active" : ""} ${i < step ? "done" : ""}`}
-          >
+          <li key={s} className={`step${i <= step ? " step-primary" : ""}`}>
             {s}
-          </span>
+          </li>
         ))}
-      </div>
+      </ul>
 
       {step === 0 && (
-        <div className="setup-panel">
+        <div className="card bg-base-100 shadow-sm p-6">
           <h3>Choose a starting point</h3>
-          <div className="setup-templates">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {Object.entries(TEMPLATES).map(([key, t]) => (
-              <button key={key} className="setup-tpl-card" onClick={() => applyTemplate(t)}>
+              <button
+                key={key}
+                className="card bg-base-100 border border-base-300 p-4 cursor-pointer hover:border-primary text-left"
+                onClick={() => applyTemplate(t)}
+              >
                 <h4>{t.label}</h4>
                 <p>{t.description}</p>
               </button>
             ))}
-            <button className="setup-tpl-card" onClick={() => setStep(1)}>
+            <button
+              className="card bg-base-100 border border-base-300 p-4 cursor-pointer hover:border-primary text-left"
+              onClick={() => setStep(1)}
+            >
               <h4>Start blank</h4>
               <p>Set up everything from scratch</p>
             </button>
@@ -163,25 +167,37 @@ export default function SetupPage() {
       )}
 
       {step === 1 && (
-        <div className="setup-panel">
+        <div className="card bg-base-100 shadow-sm p-6">
           <h3>How many earners?</h3>
-          <div className="setup-toggle">
-            <button className={earnerCount === 1 ? "active" : ""} onClick={() => setEarnerCount(1)}>
+          <div className="join mb-4">
+            <button
+              className={`btn join-item${earnerCount === 1 ? " btn-active" : ""}`}
+              onClick={() => setEarnerCount(1)}
+            >
               1
             </button>
-            <button className={earnerCount === 2 ? "active" : ""} onClick={() => setEarnerCount(2)}>
+            <button
+              className={`btn join-item${earnerCount === 2 ? " btn-active" : ""}`}
+              onClick={() => setEarnerCount(2)}
+            >
               2
             </button>
           </div>
           {[0, 1].slice(0, earnerCount).map((i) => (
-            <div key={i} className="setup-field">
-              <label>Name</label>
+            <div key={i} className="form-control mb-3">
+              <label className="label">
+                <span className="label-text">Name</span>
+              </label>
               <input
+                className="input input-bordered flex-1"
                 value={earners[i].name}
                 onChange={(e) => updateEarner(i, "name", e.target.value)}
               />
-              <label>Monthly Income</label>
+              <label className="label">
+                <span className="label-text">Monthly Income</span>
+              </label>
               <input
+                className="input input-bordered flex-1"
                 type="number"
                 value={earners[i].income || ""}
                 onChange={(e) => updateEarner(i, "income", e.target.value)}
@@ -189,7 +205,7 @@ export default function SetupPage() {
             </div>
           ))}
           {earnerCount === 2 && (
-            <label className="setup-check">
+            <label className="label cursor-pointer flex items-center gap-2">
               <input
                 type="checkbox"
                 checked={useSplit}
@@ -202,23 +218,23 @@ export default function SetupPage() {
       )}
 
       {step === 2 && (
-        <div className="setup-panel">
+        <div className="card bg-base-100 shadow-sm p-6">
           <h3>Budget Items</h3>
-          <p className="setup-hint">
+          <p className="text-sm text-secondary mb-4">
             Organize your budget into sections. You can always add more later.
           </p>
           {sections.map((s, si) => (
-            <div key={si} className="setup-section-group">
-              <div className="setup-section-hdr">
+            <div key={si} className="mb-6 p-4 border border-base-300 rounded-sm">
+              <div className="flex items-center gap-2 mb-3">
                 <input
-                  className="setup-section-name"
+                  className="input input-bordered flex-1"
                   value={s.name}
                   onChange={(e) => updateSectionName(si, e.target.value)}
                   placeholder="Section name"
                 />
                 {sections.length > 1 && (
                   <button
-                    className="setup-rm"
+                    className="btn btn-ghost btn-xs text-error"
                     onClick={() => {
                       if (confirm(`Remove "${s.name}" and all its items?`)) removeSection(si);
                     }}
@@ -228,32 +244,34 @@ export default function SetupPage() {
                   </button>
                 )}
               </div>
-              <div className="setup-row setup-row-hdr">
+              <div className="flex items-center gap-2 mb-1 text-xs font-semibold text-base-content/50 uppercase">
                 <span>Name</span>
-                <span className="hdr-num">Amount</span>
-                <span className="hdr-num">%</span>
+                <span className="text-right flex-1 max-w-24">Amount</span>
+                <span className="text-right flex-1 max-w-24">%</span>
                 <span></span>
               </div>
               {s.items.map((item, ii) => (
-                <div key={ii} className="setup-row">
+                <div key={ii} className="flex items-center gap-2 mb-2">
                   <input
+                    className="input input-bordered flex-1"
                     placeholder="Item name"
                     value={item.name}
                     onChange={(e) => updateSectionItem(si, ii, "name", e.target.value)}
                   />
                   <input
+                    className="input input-bordered flex-1"
                     type="number"
                     placeholder="Amount"
                     value={item.budget || ""}
                     onChange={(e) => updateSectionItem(si, ii, "budget", e.target.value)}
                   />
-                  <span className="setup-pct-display">
+                  <span className="text-sm text-secondary w-16 text-right">
                     {item.budget && income > 0
                       ? `${Math.round((item.budget / income) * 10000) / 100}%`
                       : ""}
                   </span>
                   <button
-                    className="setup-rm"
+                    className="btn btn-ghost btn-xs text-error"
                     onClick={() => {
                       if (confirm(`Remove "${item.name || "this item"}"?`))
                         removeItemFromSection(si, ii);
@@ -263,48 +281,53 @@ export default function SetupPage() {
                   </button>
                 </div>
               ))}
-              <button className="setup-add" onClick={() => addItemToSection(si)}>
+              <button className="btn btn-ghost btn-sm mt-2" onClick={() => addItemToSection(si)}>
                 + Add Item
               </button>
             </div>
           ))}
-          <button className="setup-add" onClick={addSection} style={{ marginTop: 16 }}>
+          <button className="btn btn-ghost btn-sm mt-4" onClick={addSection}>
             + Add Section
           </button>
         </div>
       )}
 
       {step === 3 && (
-        <div className="setup-panel">
+        <div className="card bg-base-100 shadow-sm p-6">
           <h3>Funds to Track</h3>
-          <p className="setup-hint">Track account balances alongside your budget.</p>
-          <div className="setup-row setup-row-hdr">
+          <p className="text-sm text-secondary mb-4">
+            Track account balances alongside your budget.
+          </p>
+          <div className="flex items-center gap-2 mb-1 text-xs font-semibold text-base-content/50 uppercase">
             <span>Name</span>
-            <span className="hdr-num">Opening</span>
-            <span className="hdr-num">Min</span>
+            <span className="text-right flex-1 max-w-24">Opening</span>
+            <span className="text-right flex-1 max-w-24">Min</span>
             <span></span>
           </div>
           {funds.map((f, i) => (
-            <div key={i} className="setup-row">
+            <div key={i} className="flex items-center gap-2 mb-2">
               <input
+                className="input input-bordered flex-1"
                 placeholder="Fund name"
                 value={f.name}
                 onChange={(e) => updateFund(i, "name", e.target.value)}
               />
               <input
+                className="input input-bordered flex-1"
                 type="number"
                 placeholder="Opening balance"
                 value={f.opening || ""}
                 onChange={(e) => updateFund(i, "opening", e.target.value)}
               />
               <input
+                className="input input-bordered flex-1"
                 type="number"
                 placeholder="Min balance"
                 value={f.minBal || ""}
                 onChange={(e) => updateFund(i, "minBal", e.target.value)}
               />
               <button
-                className="setup-rm"
+                className="btn btn-ghost btn-xs text-error"
                 onClick={() => setFunds(funds.filter((_, j) => j !== i))}
               >
                 ×
@@ -312,7 +335,7 @@ export default function SetupPage() {
             </div>
           ))}
           <button
-            className="setup-add"
+            className="btn btn-ghost btn-sm mt-2"
             onClick={() => setFunds([...funds, { name: "", opening: 0, minBal: 0 }])}
           >
             + Add Fund
@@ -320,19 +343,19 @@ export default function SetupPage() {
         </div>
       )}
 
-      <div className="setup-nav">
+      <div className="flex justify-end gap-3 mt-6">
         {step > 0 && (
-          <button className="setup-back" onClick={() => setStep(step - 1)}>
+          <button className="btn btn-ghost" onClick={() => setStep(step - 1)}>
             Back
           </button>
         )}
         {step > 0 && step < 3 && (
-          <button className="setup-next" onClick={() => setStep(step + 1)}>
+          <button className="btn btn-primary" onClick={() => setStep(step + 1)}>
             Next
           </button>
         )}
         {step === 3 && (
-          <button className="setup-finish" onClick={finish}>
+          <button className="btn btn-primary" onClick={finish}>
             Start Budgeting
           </button>
         )}

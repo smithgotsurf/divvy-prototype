@@ -33,24 +33,40 @@ export default function FundsGrid({ year, monthIndex, funds }: FundsGridProps) {
   };
 
   return (
-    <div className="fg">
-      <div className="fg-hdr">
-        <span className="fg-title">Funds</span>
-        <button className="fg-add" onClick={handleAdd}>
+    <div>
+      <div className="flex justify-between items-center px-4 py-2">
+        <span className="text-xs font-semibold uppercase tracking-wider text-base-content/50">
+          Funds
+        </span>
+        <button className="btn btn-ghost btn-xs" onClick={handleAdd}>
           + Add
         </button>
       </div>
-      <table className="fg-tbl">
+      <table className="table table-sm w-full">
         <thead>
           <tr>
-            <th className="fg-th-name col-name">Fund</th>
-            <th className="fg-th-num col-narrow">Min</th>
-            <th className="fg-th-num col-num">Opening</th>
-            <th className="fg-th-num col-num">In</th>
-            <th className="fg-th-num col-num">Out</th>
-            <th className="fg-th-num col-num">Closing</th>
-            <th className="fg-th-notes">Notes</th>
-            <th className="fg-th-x col-x"></th>
+            <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-left">
+              Fund
+            </th>
+            <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-right">
+              Min
+            </th>
+            <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-right">
+              Opening
+            </th>
+            <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-right">
+              In
+            </th>
+            <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-right">
+              Out
+            </th>
+            <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-right">
+              Closing
+            </th>
+            <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-left">
+              Notes
+            </th>
+            <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-left"></th>
           </tr>
         </thead>
         <tbody>
@@ -58,14 +74,14 @@ export default function FundsGrid({ year, monthIndex, funds }: FundsGridProps) {
             const closing = fundClosing(f);
             const belowMin = f.minBal > 0 && closing < f.minBal;
             return (
-              <tr key={f.id} className={belowMin ? "fg-warn" : ""}>
+              <tr key={f.id} className={belowMin ? "bg-warning/10" : ""}>
                 <td>
                   <EditableCell
                     value={f.name}
                     onChange={(v) => updateFund(year, monthIndex, f.id, { name: v as string })}
                   />
                 </td>
-                <td className="num fg-min-cell">
+                <td className="text-right font-mono">
                   <EditableCell
                     value={f.minBal || ""}
                     type="number"
@@ -75,7 +91,7 @@ export default function FundsGrid({ year, monthIndex, funds }: FundsGridProps) {
                     }
                   />
                 </td>
-                <td className="num">
+                <td className="text-right font-mono">
                   <EditableCell
                     value={f.opening}
                     type="number"
@@ -83,7 +99,7 @@ export default function FundsGrid({ year, monthIndex, funds }: FundsGridProps) {
                     onChange={(v) => updateFund(year, monthIndex, f.id, { opening: v as number })}
                   />
                 </td>
-                <td className="num">
+                <td className="text-right font-mono">
                   <EditableCell
                     value={f.transfersIn}
                     type="number"
@@ -93,7 +109,7 @@ export default function FundsGrid({ year, monthIndex, funds }: FundsGridProps) {
                     }
                   />
                 </td>
-                <td className="num">
+                <td className="text-right font-mono">
                   <EditableCell
                     value={f.transfersOut}
                     type="number"
@@ -103,24 +119,28 @@ export default function FundsGrid({ year, monthIndex, funds }: FundsGridProps) {
                     }
                   />
                 </td>
-                <td className={`num ${belowMin ? "fg-below" : ""}`}>{fmt(closing)}</td>
+                <td
+                  className={`text-right font-mono ${belowMin ? "text-error font-semibold" : ""}`}
+                >
+                  {fmt(closing)}
+                </td>
                 <td>
                   <EditableCell
                     value={f.notes}
                     onChange={(v) => updateFund(year, monthIndex, f.id, { notes: v as string })}
-                    className="fg-notes"
+                    className="text-sm text-base-content/60"
                   />
                 </td>
-                <td className="row-actions">
+                <td className="flex gap-1">
                   <button
-                    className="row-edit"
+                    className="btn btn-ghost btn-xs"
                     onClick={() => setModal({ data: f, isNew: false })}
                     title="Edit"
                   >
                     ✎
                   </button>
                   <button
-                    className="fg-rm"
+                    className="btn btn-ghost btn-xs text-error"
                     onClick={() => {
                       if (confirm(`Remove "${f.name || "this fund"}"?`))
                         removeFund(year, monthIndex, f.id);

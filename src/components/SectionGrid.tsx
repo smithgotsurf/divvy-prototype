@@ -41,31 +41,51 @@ export default function SectionGrid({ year, monthIndex, section, earners }: Sect
   };
 
   return (
-    <div className="sg">
-      <div className="sg-hdr">
-        <span className="sg-title">{section.name}</span>
-        <button className="sg-add" onClick={handleAdd}>
+    <div>
+      <div className="flex justify-between items-center px-4 py-2">
+        <span className="text-xs font-semibold uppercase tracking-wider text-base-content/50">
+          {section.name}
+        </span>
+        <button className="btn btn-ghost btn-xs" onClick={handleAdd}>
           + Add
         </button>
       </div>
-      <table className="sg-tbl">
+      <table className="table table-sm w-full">
         <thead>
           <tr>
-            <th className="col-name">Item</th>
-            <th className="sg-th-pct col-narrow">%</th>
-            <th className="sg-th-num col-num">Budget</th>
-            {showSplit && <th className="sg-th-num col-num">{e1Name}</th>}
-            {showSplit && <th className="sg-th-num col-num">{e2Name}</th>}
-            <th className="sg-th-num col-num">Actual</th>
-            <th className="sg-th-notes">Notes</th>
-            <th className="sg-th-x col-x"></th>
+            <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-left">
+              Item
+            </th>
+            <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-right">
+              %
+            </th>
+            <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-right">
+              Budget
+            </th>
+            {showSplit && (
+              <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-right">
+                {e1Name}
+              </th>
+            )}
+            {showSplit && (
+              <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-right">
+                {e2Name}
+              </th>
+            )}
+            <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-right">
+              Actual
+            </th>
+            <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-left">
+              Notes
+            </th>
+            <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-left"></th>
           </tr>
         </thead>
         <tbody>
           {section.items.map((item) => (
             <tr
               key={item.id}
-              className={item.actual > item.budget && item.actual > 0 ? "sg-over" : ""}
+              className={item.actual > item.budget && item.actual > 0 ? "bg-error/10" : ""}
             >
               <td>
                 <EditableCell
@@ -75,10 +95,10 @@ export default function SectionGrid({ year, monthIndex, section, earners }: Sect
                   }
                 />
               </td>
-              <td className="num muted">
+              <td className="text-right font-mono text-base-content/40">
                 {income > 0 ? fmtPct(Math.round((item.budget / income) * 10000) / 100) : ""}
               </td>
-              <td className="num">
+              <td className="text-right font-mono">
                 <EditableCell
                   value={item.budget}
                   type="number"
@@ -89,7 +109,7 @@ export default function SectionGrid({ year, monthIndex, section, earners }: Sect
                 />
               </td>
               {showSplit && (
-                <td className="num">
+                <td className="text-right font-mono">
                   <EditableCell
                     value={item.earner1}
                     type="number"
@@ -101,7 +121,7 @@ export default function SectionGrid({ year, monthIndex, section, earners }: Sect
                 </td>
               )}
               {showSplit && (
-                <td className="num">
+                <td className="text-right font-mono">
                   <EditableCell
                     value={item.earner2}
                     type="number"
@@ -112,7 +132,7 @@ export default function SectionGrid({ year, monthIndex, section, earners }: Sect
                   />
                 </td>
               )}
-              <td className="num">
+              <td className="text-right font-mono">
                 <EditableCell
                   value={item.actual}
                   type="number"
@@ -128,19 +148,19 @@ export default function SectionGrid({ year, monthIndex, section, earners }: Sect
                   onChange={(v) =>
                     updateItem(year, monthIndex, section.id, item.id, { notes: v as string })
                   }
-                  className="sg-notes"
+                  className="text-sm text-base-content/60"
                 />
               </td>
-              <td className="row-actions">
+              <td className="flex gap-1">
                 <button
-                  className="row-edit"
+                  className="btn btn-ghost btn-xs"
                   onClick={() => setModal({ data: item, isNew: false })}
                   title="Edit"
                 >
                   ✎
                 </button>
                 <button
-                  className="sg-rm"
+                  className="btn btn-ghost btn-xs text-error"
                   onClick={() => {
                     if (confirm(`Remove "${item.name || "this item"}"?`))
                       removeItem(year, monthIndex, section.id, item.id);
@@ -154,13 +174,13 @@ export default function SectionGrid({ year, monthIndex, section, earners }: Sect
           ))}
         </tbody>
         <tfoot>
-          <tr className="sg-totals">
+          <tr className="font-semibold">
             <td>Subtotal</td>
             <td></td>
-            <td className="num">{fmt(budgetTotal)}</td>
-            {showSplit && <td className="num">{fmt(e1Total)}</td>}
-            {showSplit && <td className="num">{fmt(e2Total)}</td>}
-            <td className="num">{fmt(actualTotal)}</td>
+            <td className="text-right font-mono">{fmt(budgetTotal)}</td>
+            {showSplit && <td className="text-right font-mono">{fmt(e1Total)}</td>}
+            {showSplit && <td className="text-right font-mono">{fmt(e2Total)}</td>}
+            <td className="text-right font-mono">{fmt(actualTotal)}</td>
             <td></td>
             <td></td>
           </tr>

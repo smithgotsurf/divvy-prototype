@@ -51,7 +51,7 @@ export default function EditableCell({
     return (
       <input
         ref={inputRef}
-        className={`ec-input ${className}`}
+        className={`input input-bordered input-xs w-full font-mono ${className}`}
         type={type === "number" ? "number" : "text"}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
@@ -65,7 +65,7 @@ export default function EditableCell({
 
   return (
     <span
-      className={`ec ${className}`}
+      className={`cursor-pointer hover:bg-base-200 px-1 rounded min-h-[1.5em] inline-block ${className}`}
       onClick={() => {
         setDraft(value);
         setEditing(true);
@@ -80,9 +80,9 @@ export default function EditableCell({
     >
       {display ||
         (placeholder ? (
-          <span className="ec-empty">{placeholder}</span>
+          <span className="text-base-content/30">{placeholder}</span>
         ) : (
-          <span className="ec-empty">—</span>
+          <span className="text-base-content/30">—</span>
         ))}
     </span>
   );

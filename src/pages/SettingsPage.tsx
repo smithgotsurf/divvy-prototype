@@ -48,17 +48,17 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="settings">
+    <div className="max-w-2xl mx-auto">
       <h2>Settings</h2>
 
-      <div className="settings-section">
+      <div className="mb-8">
         <h3>Data Management</h3>
         <p>Export your budget data as a JSON file, or import a previously exported file.</p>
-        <div className="settings-actions">
-          <button className="settings-btn" onClick={handleExport}>
+        <div className="flex flex-wrap gap-3 mt-3">
+          <button className="btn" onClick={handleExport}>
             Export Data
           </button>
-          <button className="settings-btn" onClick={() => fileRef.current?.click()}>
+          <button className="btn" onClick={() => fileRef.current?.click()}>
             Import Data
           </button>
           <input
@@ -68,21 +68,27 @@ export default function SettingsPage() {
             onChange={handleImport}
             style={{ display: "none" }}
           />
-          <button className="settings-btn settings-btn-danger" onClick={handleReset}>
+          <button className="btn btn-error" onClick={handleReset}>
             Reset All Data
           </button>
         </div>
-        {status && <p className={`settings-status ${status.type}`}>{status.msg}</p>}
+        {status && (
+          <div
+            className={`alert ${status.type === "success" ? "alert-success" : "alert-error"} mt-3`}
+          >
+            {status.msg}
+          </div>
+        )}
       </div>
 
-      <div className="settings-section">
+      <div className="mb-8">
         <h3>Sample Templates</h3>
         <p>Load sample data to explore the app. This replaces your current data.</p>
-        <div className="settings-actions">
-          <button className="settings-btn" onClick={() => handleTemplate("dual")}>
+        <div className="flex flex-wrap gap-3 mt-3">
+          <button className="btn" onClick={() => handleTemplate("dual")}>
             Dual Income Sample
           </button>
-          <button className="settings-btn" onClick={() => handleTemplate("single")}>
+          <button className="btn" onClick={() => handleTemplate("single")}>
             Single Income Sample
           </button>
         </div>

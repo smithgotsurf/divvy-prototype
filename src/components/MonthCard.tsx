@@ -21,7 +21,7 @@ export default function MonthCard({
   isLatest = false,
   onClone,
   onRemove,
-  sectionStyle = "",
+  sectionStyle: _sectionStyle = "",
 }: MonthCardProps) {
   const { addSection, renameSection, removeSection, updateMonth } = useBudget();
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
@@ -36,28 +36,29 @@ export default function MonthCard({
 
   return (
     <div
-      className={`mc${sectionStyle ? ` mc--variant-${sectionStyle}` : ""}`}
+      className="card bg-base-200 shadow-sm border border-base-300 mb-5 overflow-hidden"
       id={`month-${monthData.id}`}
     >
       <div
-        className="mc-hdr"
+        className="flex items-baseline justify-between px-4 py-3 border-b border-base-300 bg-base-200 cursor-pointer"
         onClick={() => setCollapsed(!collapsed)}
-        style={{ cursor: "pointer" }}
       >
-        <h2 className="mc-title">
-          <span className="mc-chevron">{collapsed ? "▸" : "▾"}</span>
+        <h2 className="text-base font-bold tracking-tight">
+          <span className="inline-block w-4 text-sm text-base-content/40">
+            {collapsed ? "▸" : "▾"}
+          </span>
           {monthNameFull(month)} {year}
         </h2>
-        <div className="mc-totals">
+        <div className="flex gap-4 font-mono text-sm text-secondary">
           <span>Budget: {fmt(totalBudget)}</span>
           <span>Actual: {fmt(totalActual)}</span>
-          <span className={delta >= 0 ? "under" : "over"}>
+          <span className={delta >= 0 ? "text-success" : "text-error"}>
             {delta >= 0 ? "+" : ""}
             {fmt(delta)}
           </span>
           {isLatest && onClone && (
             <button
-              className="mc-clone"
+              className="btn btn-ghost btn-xs border-dashed border-base-300 ml-2"
               onClick={(e) => {
                 e.stopPropagation();
                 onClone();
@@ -71,8 +72,8 @@ export default function MonthCard({
 
       {!collapsed && (
         <>
-          <div className="mc-income">
-            <div className="mc-income-left">
+          <div className="flex items-center justify-between px-4 py-1.5 text-xs text-base-content/50 border-b border-base-300">
+            <div className="flex gap-4">
               {earners.map((e, i) => (
                 <span key={i}>
                   {e.name}: {fmt(e.income)}
@@ -80,18 +81,21 @@ export default function MonthCard({
                 </span>
               ))}
             </div>
-            <button className="mc-gear" onClick={() => setShowManage(true)}>
+            <button
+              className="btn btn-ghost btn-xs border-dashed border-base-300"
+              onClick={() => setShowManage(true)}
+            >
               ⚙ Settings
             </button>
           </div>
 
           {sections.map((s) => (
-            <div key={s.id} className="mc-section">
+            <div key={s.id} className="mx-3 my-2 border border-base-300 rounded-sm bg-base-100">
               <SectionGrid year={year} monthIndex={month} section={s} earners={earners} />
             </div>
           ))}
 
-          <div className="mc-section mc-section--funds">
+          <div className="mx-3 my-2 border border-base-300 rounded-sm bg-base-100">
             <FundsGrid year={year} monthIndex={month} funds={funds} />
           </div>
         </>

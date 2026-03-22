@@ -16,30 +16,33 @@ export default function App() {
   }
 
   return (
-    <div className={`app ${sidebarOpen ? "sb-open" : ""}`}>
-      <header className="hdr">
-        <div className="hdr-left">
-          <h1 className="logo" onClick={() => navigate("/")}>
+    <div className="min-h-screen flex flex-col bg-base-200">
+      <header className="navbar bg-base-100 border-b border-base-300 shadow-sm sticky top-0 z-50 px-6 min-h-[52px]">
+        <div className="flex items-center gap-3">
+          <h1
+            className="text-lg font-bold tracking-tight text-primary cursor-pointer select-none"
+            onClick={() => navigate("/")}
+          >
             Divvy
           </h1>
-          <nav className="nav">
+          <nav className="flex gap-0.5">
             <button
-              className={`nav-btn${location.pathname === "/" ? " active" : ""}`}
+              className={`btn btn-ghost btn-sm text-secondary${location.pathname === "/" ? " btn-active" : ""}`}
               onClick={() => navigate("/")}
             >
               Timeline
             </button>
             <button
-              className={`nav-btn${location.pathname === "/summary" ? " active" : ""}`}
+              className={`btn btn-ghost btn-sm text-secondary${location.pathname === "/summary" ? " btn-active" : ""}`}
               onClick={() => navigate("/summary")}
             >
               Summary
             </button>
           </nav>
         </div>
-        <div className="hdr-right">
+        <div className="flex items-center gap-3">
           <select
-            className="yr-sel"
+            className="select select-bordered select-sm font-mono text-sm"
             value={currentYear}
             onChange={(e) => setCurrentYear(Number(e.target.value))}
           >
@@ -56,16 +59,22 @@ export default function App() {
             const nextMonth = last.month + 1;
             const label = nextMonth > 11 ? `Jan ${currentYear + 1}` : monthNameFull(nextMonth);
             return (
-              <button className="hdr-clone" onClick={() => cloneMonth(currentYear, last.month)}>
+              <button
+                className="btn btn-ghost btn-sm border-dashed border-base-300"
+                onClick={() => cloneMonth(currentYear, last.month)}
+              >
                 + {label}
               </button>
             );
           })()}
-          <button className="sb-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
+          <button
+            className="btn btn-ghost btn-sm border border-base-300"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
             {sidebarOpen ? "Hide YTD" : "Show YTD"}
           </button>
           <button
-            className={`nav-btn${location.pathname === "/settings" ? " active" : ""}`}
+            className={`btn btn-ghost btn-sm text-secondary${location.pathname === "/settings" ? " btn-active" : ""}`}
             onClick={() => navigate("/settings")}
           >
             Settings
@@ -73,12 +82,12 @@ export default function App() {
         </div>
       </header>
 
-      <div className="main">
-        <div className="content">
+      <div className="flex flex-1 overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-6">
           <Outlet context={{ sectionStyle: "d" }} />
         </div>
         {sidebarOpen && (
-          <aside className="sidebar">
+          <aside className="w-80 min-w-80 border-l border-base-300 bg-base-100 overflow-y-auto p-5 shadow-sm">
             <YtdSidebar />
           </aside>
         )}

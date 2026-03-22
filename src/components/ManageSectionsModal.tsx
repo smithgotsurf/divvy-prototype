@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import type { Section, Earner } from "../types";
+import Modal from "./Modal";
 
 interface ManageSectionsModalProps {
   sections: Section[];
@@ -25,16 +26,7 @@ export default function ManageSectionsModal({
   onClose,
 }: ManageSectionsModalProps) {
   const [newName, setNewName] = useState("");
-  const backdropRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [onClose]);
 
   const handleAdd = () => {
     if (newName.trim()) {
@@ -45,80 +37,14 @@ export default function ManageSectionsModal({
   };
 
   return (
-    <div
-      className="rm-backdrop"
-      ref={backdropRef}
-      onClick={(e) => {
-        if (e.target === backdropRef.current) onClose();
-      }}
-    >
-      <div className="rm">
-        <div className="rm-hdr">
-          <h3 className="rm-title">{monthLabel ? `${monthLabel} Settings` : "Month Settings"}</h3>
-          <button className="rm-close" onClick={onClose}>
-            ×
-          </button>
-        </div>
-        <div className="rm-body">
-          <div className="ms-group">
-            <label className="rm-label">Income</label>
-            {earners.map(
-              (e, i) =>
-                e.name && (
-                  <div key={i} className="ms-earner-row">
-                    <span className="ms-earner-name">{e.name}</span>
-                    <input
-                      className="rm-input rm-input-num"
-                      type="number"
-                      value={e.income || ""}
-                      onChange={(ev) => onUpdateEarner(i, parseFloat(ev.target.value) || 0)}
-                    />
-                  </div>
-                ),
-            )}
-          </div>
-
-          <div className="ms-group">
-            <label className="rm-label">Sections</label>
-            {sections.map((s) => (
-              <div key={s.id} className="ms-row">
-                <input
-                  className="rm-input"
-                  value={s.name}
-                  onChange={(e) => onRename(s.id, e.target.value)}
-                />
-                <button
-                  className="ms-rm"
-                  onClick={() => {
-                    if (confirm(`Delete "${s.name}" and all its items?`)) onRemove(s.id);
-                  }}
-                  title="Delete section"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-            <div className="ms-add-row">
-              <input
-                ref={inputRef}
-                className="rm-input"
-                value={newName}
-                placeholder="New section name"
-                onChange={(e) => setNewName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleAdd();
-                }}
-              />
-              <button className="ms-add-btn" onClick={handleAdd}>
-                Add
-              </button>
-            </div>
-          </div>
-        </div>
-        <div className="rm-footer">
+    <Modal
+      title={monthLabel ? `${monthLabel} Settings` : "Month Settings"}
+      onClose={onClose}
+      footer={
+        <div className="flex w-full justify-between">
           {onRemoveMonth && (
             <button
-              className="ms-danger"
+              className="btn btn-error"
               onClick={() => {
                 if (confirm(`Delete ${monthLabel || "this month"}? This cannot be undone.`)) {
                   onClose();
@@ -129,11 +55,70 @@ export default function ManageSectionsModal({
               Delete
             </button>
           )}
-          <button className="rm-save" onClick={onClose}>
+          <button className="btn btn-primary ml-auto" onClick={onClose}>
             Done
           </button>
         </div>
+      }
+    >
+      <div className="mb-4 pb-4 border-b border-base-300">
+        <label className="label">
+          <span className="label-text font-semibold">Income</span>
+        </label>
+        {earners.map(
+          (e, i) =>
+            e.name && (
+              <div key={i} className="flex items-center gap-2 mb-2">
+                <span className="text-sm">{e.name}</span>
+                <input
+                  className="input input-bordered w-full font-mono max-w-32"
+                  type="number"
+                  value={e.income || ""}
+                  onChange={(ev) => onUpdateEarner(i, parseFloat(ev.target.value) || 0)}
+                />
+              </div>
+            ),
+        )}
       </div>
-    </div>
+
+      <div>
+        <label className="label">
+          <span className="label-text font-semibold">Sections</span>
+        </label>
+        {sections.map((s) => (
+          <div key={s.id} className="flex items-center gap-2 mb-2">
+            <input
+              className="input input-bordered w-full"
+              value={s.name}
+              onChange={(e) => onRename(s.id, e.target.value)}
+            />
+            <button
+              className="btn btn-ghost btn-xs text-error"
+              onClick={() => {
+                if (confirm(`Delete "${s.name}" and all its items?`)) onRemove(s.id);
+              }}
+              title="Delete section"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+        <div className="flex items-center gap-2 mt-2">
+          <input
+            ref={inputRef}
+            className="input input-bordered w-full"
+            value={newName}
+            placeholder="New section name"
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleAdd();
+            }}
+          />
+          <button className="btn btn-ghost btn-sm" onClick={handleAdd}>
+            Add
+          </button>
+        </div>
+      </div>
+    </Modal>
   );
 }
