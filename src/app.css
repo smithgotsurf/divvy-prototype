@@ -651,6 +651,8 @@ td.num.muted { font-size: 0.72rem; text-align: right; }
   padding: 12px 18px 16px;
   border-top: 1px solid var(--border-light);
 }
+.rm-footer .ms-danger { margin-right: auto;
+}
 
 .rm-cancel, .rm-save {
   font-family: var(--font-sans);
@@ -1258,6 +1260,19 @@ td.num.muted { font-size: 0.72rem; text-align: right; }
   transition: all 0.15s;
 }
 .ms-add-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.ms-danger {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--red);
+  background: var(--red);
+  color: #fff;
+  cursor: pointer;
+}
+.ms-danger:hover { opacity: 0.85; }
 
 .ms-group {
   margin-bottom: 16px;

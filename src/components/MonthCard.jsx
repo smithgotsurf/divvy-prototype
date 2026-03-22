@@ -5,7 +5,7 @@ import FundsGrid from "./FundsGrid";
 import ManageSectionsModal from "./ManageSectionsModal";
 import { fmt, monthNameFull, totalIncome, splitRatios, itemsTotal } from "../shared/helpers";
 
-export default function MonthCard({ monthData, defaultCollapsed = false, isLatest = false, onClone, sectionStyle = "" }) {
+export default function MonthCard({ monthData, defaultCollapsed = false, isLatest = false, onClone, onRemove, sectionStyle = "" }) {
   const { addSection, renameSection, removeSection, updateMonth } = useBudget();
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [showManage, setShowManage] = useState(false);
@@ -74,6 +74,8 @@ export default function MonthCard({ monthData, defaultCollapsed = false, isLates
             ...m,
             earners: m.earners.map((e, idx) => idx === i ? { ...e, income } : e),
           }))}
+          onRemoveMonth={onRemove}
+          monthLabel={`${monthNameFull(month)} ${year}`}
           onClose={() => setShowManage(false)}
         />
       )}

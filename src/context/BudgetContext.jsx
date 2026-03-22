@@ -123,6 +123,16 @@ export function BudgetProvider({ children }) {
     });
   }, [update]);
 
+  // --- Remove a month ---
+  const removeMonth = useCallback((year, monthIndex) => {
+    update(prev => {
+      const yearData = prev.years[year];
+      if (!yearData) return prev;
+      const months = yearData.months.filter(m => m.month !== monthIndex);
+      return { ...prev, years: { ...prev.years, [year]: { ...yearData, months } } };
+    });
+  }, [update]);
+
   // --- Section CRUD within a month ---
   const addSection = useCallback((year, monthIndex, name) => {
     updateMonth(year, monthIndex, (m) => ({
@@ -307,6 +317,7 @@ export function BudgetProvider({ children }) {
       getMonth,
       updateMonth,
       cloneMonth,
+      removeMonth,
       addSection,
       renameSection,
       removeSection,

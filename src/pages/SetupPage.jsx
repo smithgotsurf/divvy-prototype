@@ -173,7 +173,7 @@ export default function SetupPage() {
                   placeholder="Section name"
                 />
                 {sections.length > 1 && (
-                  <button className="setup-rm" onClick={() => removeSection(si)} title="Remove section">×</button>
+                  <button className="setup-rm" onClick={() => { if (confirm(`Remove "${s.name}" and all its items?`)) removeSection(si); }} title="Remove section">×</button>
                 )}
               </div>
               <div className="setup-row setup-row-hdr">
@@ -189,7 +189,7 @@ export default function SetupPage() {
                   <span className="setup-pct-display">
                     {item.budget && income > 0 ? `${Math.round((item.budget / income) * 10000) / 100}%` : ""}
                   </span>
-                  <button className="setup-rm" onClick={() => removeItemFromSection(si, ii)}>×</button>
+                  <button className="setup-rm" onClick={() => { if (confirm(`Remove "${item.name || "this item"}"?`)) removeItemFromSection(si, ii); }}>×</button>
                 </div>
               ))}
               <button className="setup-add" onClick={() => addItemToSection(si)}>+ Add Item</button>

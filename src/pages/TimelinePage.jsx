@@ -4,7 +4,7 @@ import MonthCard from "../components/MonthCard";
 
 export default function TimelinePage() {
   const { sectionStyle } = useOutletContext();
-  const { currentYear, getMonths, cloneMonth } = useBudget();
+  const { currentYear, getMonths, cloneMonth, removeMonth } = useBudget();
   const months = getMonths(currentYear);
 
   if (months.length === 0) {
@@ -23,6 +23,7 @@ export default function TimelinePage() {
           defaultCollapsed={m.id !== lastMonth.id}
           isLatest={m.id === lastMonth.id}
           onClone={() => cloneMonth(currentYear, lastMonth.month)}
+          onRemove={() => removeMonth(currentYear, m.month)}
           sectionStyle={sectionStyle}
         />
       ))}

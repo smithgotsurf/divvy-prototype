@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { fmt } from "../shared/helpers";
 
-export default function ManageSectionsModal({ sections, earners, onAdd, onRename, onRemove, onUpdateEarner, onClose }) {
+export default function ManageSectionsModal({ sections, earners, onAdd, onRename, onRemove, onUpdateEarner, onRemoveMonth, monthLabel, onClose }) {
   const [newName, setNewName] = useState("");
   const backdropRef = useRef(null);
   const inputRef = useRef(null);
@@ -24,7 +24,7 @@ export default function ManageSectionsModal({ sections, earners, onAdd, onRename
     <div className="rm-backdrop" ref={backdropRef} onClick={(e) => { if (e.target === backdropRef.current) onClose(); }}>
       <div className="rm">
         <div className="rm-hdr">
-          <h3 className="rm-title">Month Settings</h3>
+          <h3 className="rm-title">{monthLabel ? `${monthLabel} Settings` : "Month Settings"}</h3>
           <button className="rm-close" onClick={onClose}>×</button>
         </div>
         <div className="rm-body">
@@ -77,6 +77,17 @@ export default function ManageSectionsModal({ sections, earners, onAdd, onRename
           </div>
         </div>
         <div className="rm-footer">
+          {onRemoveMonth && (
+            <button
+              className="ms-danger"
+              onClick={() => {
+                if (confirm(`Delete ${monthLabel || "this month"}? This cannot be undone.`)) {
+                  onClose();
+                  onRemoveMonth();
+                }
+              }}
+            >Delete</button>
+          )}
           <button className="rm-save" onClick={onClose}>Done</button>
         </div>
       </div>
