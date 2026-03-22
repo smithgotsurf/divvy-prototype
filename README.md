@@ -1,45 +1,54 @@
 # Divvy
 
-A monthly budget allocation web app prototype for tracking bills, percentage-based allocations, and fund balances.
+A monthly budget allocation web app for tracking sections, earner splits, and fund balances.
 
 Hosted at: [https://smithgotsurf.github.io/divvy-prototype/](https://smithgotsurf.github.io/divvy-prototype/)
 
-✨Vibe✨ coded with Claude
-
 ## Tech
 
-- React 19
-- react-router-dom v7 (HashRouter)
-- Vite
+- React 19, TypeScript (strict mode)
+- Tailwind CSS 4 + DaisyUI 5
+- Vite 6, react-router-dom v7 (HashRouter)
+- Immer for state management
+- ESLint + Prettier
 
 ## Project Structure
 
 ```
 src/
-├── main.jsx              # HashRouter + route definitions
-├── App.jsx               # Layout shell (header, nav, sidebar)
-├── app.css               # All styles (CSS variables, data-dense grids)
-├── data.js               # Data model, factories, sample templates
+├── main.tsx              # HashRouter + route definitions
+├── App.tsx               # Layout shell (navbar, nav, sidebar)
+├── index.css             # Tailwind imports, DaisyUI theme
+├── data.ts               # Data model, factories, templates
+├── types/
+│   └── index.ts          # All TypeScript interfaces
 ├── context/
-│   └── BudgetContext.jsx  # Budget state, localStorage persistence, CRUD
+│   └── BudgetContext.tsx  # Budget state, Immer, useLocalStorage, CRUD
+├── hooks/
+│   └── useLocalStorage.ts # Generic typed localStorage hook
 ├── components/
-│   ├── EditableCell.jsx   # Click-to-edit inline cell
-│   ├── BillsGrid.jsx     # Bills table with earner columns
-│   ├── AllocationsGrid.jsx # Percentage allocations with YTD
-│   ├── FundsGrid.jsx     # Fund balance tracking
-│   ├── MonthCard.jsx     # Collapsible month view
-│   └── YtdSidebar.jsx    # Year-to-date summary
+│   ├── EditableCell.tsx   # Click-to-edit inline cell
+│   ├── Modal.tsx          # Shared DaisyUI modal wrapper
+│   ├── SectionGrid.tsx    # Budget section table with earner columns
+│   ├── FundsGrid.tsx      # Fund balance tracking
+│   ├── MonthCard.tsx      # Collapsible month view
+│   ├── RowModal.tsx       # Add/edit item or fund form
+│   ├── ManageSectionsModal.tsx # Month settings
+│   └── YtdSidebar.tsx     # Year-to-date summary
 ├── pages/
-│   ├── TimelinePage.jsx   # Month card timeline
-│   ├── SummaryPage.jsx    # Year-end summary
-│   ├── SetupPage.jsx      # First-time setup wizard
-│   └── SettingsPage.jsx   # Export, import, reset
+│   ├── TimelinePage.tsx   # Month card timeline
+│   ├── SummaryPage.tsx    # Year-end summary
+│   ├── SetupPage.tsx      # First-time setup wizard
+│   └── SettingsPage.tsx   # Export, import, reset
 └── shared/
-    └── helpers.js         # Formatters, math utils
+    └── helpers.ts         # Formatters, math utils
 ```
 
 ## Dev
 
 ```bash
-npm run dev   # starts on port 5175
+npm run dev          # starts on port 5175
+npm run build        # tsc -b && vite build
+npm run lint         # ESLint
+npm run format       # Prettier
 ```
