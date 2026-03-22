@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* Divvy custom theme — warm earth tones matching original palette */
+@plugin "daisyui/theme" {
+  name: "divvy";
+  default: true;
+  color-scheme: light;
+
+  /* Base: warm off-white surfaces */
+  --color-base-100: oklch(97.5% 0.008 70);   /* #ffffff surface */
+  --color-base-200: oklch(96% 0.008 70);      /* #faf8f5 surface-alt */
+  --color-base-300: oklch(90% 0.012 70);      /* #e8e4dc border-light */
+  --color-base-content: oklch(18% 0.02 50);   /* #1c1917 text */
+
+  /* Primary: warm amber/orange accent */
+  --color-primary: oklch(52% 0.14 55);        /* #b45309 accent */
+  --color-primary-content: oklch(98% 0.01 70);
+
+  /* Secondary: muted stone */
+  --color-secondary: oklch(45% 0.02 50);      /* #57534e text-secondary */
+  --color-secondary-content: oklch(98% 0.01 70);
+
+  /* Accent: same as primary for this theme */
+  --color-accent: oklch(52% 0.14 55);
+  --color-accent-content: oklch(98% 0.01 70);
+
+  /* Neutral */
+  --color-neutral: oklch(30% 0.02 50);
+  --color-neutral-content: oklch(96% 0.008 70);
+
+  /* Semantic colors */
+  --color-success: oklch(48% 0.15 150);       /* #15803d green */
+  --color-success-content: oklch(98% 0.01 150);
+  --color-warning: oklch(52% 0.12 80);        /* #a16207 amber */
+  --color-warning-content: oklch(98% 0.01 80);
+  --color-error: oklch(45% 0.18 25);          /* #b91c1c red */
+  --color-error-content: oklch(98% 0.01 25);
+  --color-info: oklch(55% 0.15 240);
+  --color-info-content: oklch(98% 0.01 240);
+
+  /* Tight border radius for data-dense UI */
+  --radius-selector: 0.25rem;
+  --radius-field: 0.1875rem;
+  --radius-box: 0.1875rem;
+
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+@theme {
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-mono: "DM Mono", "Menlo", monospace;
+}
+
+/* Global base styles */
+html {
+  font-size: 17px;
+}
+body {
+  -webkit-font-smoothing: antialiased;
+}

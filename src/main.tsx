@@ -7,7 +7,7 @@ import TimelinePage from "./pages/TimelinePage";
 import SetupPage from "./pages/SetupPage";
 import SummaryPage from "./pages/SummaryPage";
 import SettingsPage from "./pages/SettingsPage";
-import "./app.css";
+import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
