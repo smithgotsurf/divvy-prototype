@@ -9,7 +9,14 @@ interface EditableCellProps {
   placeholder?: string;
 }
 
-export default function EditableCell({ value, onChange, type = "text", className = "", formatter, placeholder }: EditableCellProps) {
+export default function EditableCell({
+  value,
+  onChange,
+  type = "text",
+  className = "",
+  formatter,
+  placeholder,
+}: EditableCellProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<string | number>(value);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -23,7 +30,7 @@ export default function EditableCell({ value, onChange, type = "text", className
 
   const commit = () => {
     setEditing(false);
-    const next = type === "number" ? (parseFloat(draft as string) || 0) : draft;
+    const next = type === "number" ? parseFloat(draft as string) || 0 : draft;
     if (next !== value) onChange(next);
   };
 
@@ -59,11 +66,24 @@ export default function EditableCell({ value, onChange, type = "text", className
   return (
     <span
       className={`ec ${className}`}
-      onClick={() => { setDraft(value); setEditing(true); }}
+      onClick={() => {
+        setDraft(value);
+        setEditing(true);
+      }}
       tabIndex={0}
-      onKeyDown={(e) => { if (e.key === "Enter") { setDraft(value); setEditing(true); } }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          setDraft(value);
+          setEditing(true);
+        }
+      }}
     >
-      {display || (placeholder ? <span className="ec-empty">{placeholder}</span> : <span className="ec-empty">—</span>)}
+      {display ||
+        (placeholder ? (
+          <span className="ec-empty">{placeholder}</span>
+        ) : (
+          <span className="ec-empty">—</span>
+        ))}
     </span>
   );
 }

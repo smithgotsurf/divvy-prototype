@@ -15,7 +15,14 @@ interface MonthCardProps {
   sectionStyle?: string;
 }
 
-export default function MonthCard({ monthData, defaultCollapsed = false, isLatest = false, onClone, onRemove, sectionStyle = "" }: MonthCardProps) {
+export default function MonthCard({
+  monthData,
+  defaultCollapsed = false,
+  isLatest = false,
+  onClone,
+  onRemove,
+  sectionStyle = "",
+}: MonthCardProps) {
   const { addSection, renameSection, removeSection, updateMonth } = useBudget();
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [showManage, setShowManage] = useState(false);
@@ -28,8 +35,15 @@ export default function MonthCard({ monthData, defaultCollapsed = false, isLates
   const delta = totalBudget - totalActual;
 
   return (
-    <div className={`mc${sectionStyle ? ` mc--variant-${sectionStyle}` : ""}`} id={`month-${monthData.id}`}>
-      <div className="mc-hdr" onClick={() => setCollapsed(!collapsed)} style={{ cursor: "pointer" }}>
+    <div
+      className={`mc${sectionStyle ? ` mc--variant-${sectionStyle}` : ""}`}
+      id={`month-${monthData.id}`}
+    >
+      <div
+        className="mc-hdr"
+        onClick={() => setCollapsed(!collapsed)}
+        style={{ cursor: "pointer" }}
+      >
         <h2 className="mc-title">
           <span className="mc-chevron">{collapsed ? "▸" : "▾"}</span>
           {monthNameFull(month)} {year}
@@ -38,10 +52,19 @@ export default function MonthCard({ monthData, defaultCollapsed = false, isLates
           <span>Budget: {fmt(totalBudget)}</span>
           <span>Actual: {fmt(totalActual)}</span>
           <span className={delta >= 0 ? "under" : "over"}>
-            {delta >= 0 ? "+" : ""}{fmt(delta)}
+            {delta >= 0 ? "+" : ""}
+            {fmt(delta)}
           </span>
           {isLatest && onClone && (
-            <button className="mc-clone" onClick={(e) => { e.stopPropagation(); onClone(); }}>+ Clone</button>
+            <button
+              className="mc-clone"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClone();
+              }}
+            >
+              + Clone
+            </button>
           )}
         </div>
       </div>
@@ -57,7 +80,9 @@ export default function MonthCard({ monthData, defaultCollapsed = false, isLates
                 </span>
               ))}
             </div>
-            <button className="mc-gear" onClick={() => setShowManage(true)}>⚙ Settings</button>
+            <button className="mc-gear" onClick={() => setShowManage(true)}>
+              ⚙ Settings
+            </button>
           </div>
 
           {sections.map((s) => (
@@ -79,10 +104,12 @@ export default function MonthCard({ monthData, defaultCollapsed = false, isLates
           onAdd={(name) => addSection(year, month, name)}
           onRename={(id, name) => renameSection(year, month, id, name)}
           onRemove={(id) => removeSection(year, month, id)}
-          onUpdateEarner={(i: number, income: number) => updateMonth(year, month, (m: Month) => ({
-            ...m,
-            earners: m.earners.map((e, idx) => idx === i ? { ...e, income } : e),
-          }))}
+          onUpdateEarner={(i: number, income: number) =>
+            updateMonth(year, month, (m: Month) => ({
+              ...m,
+              earners: m.earners.map((e, idx) => (idx === i ? { ...e, income } : e)),
+            }))
+          }
           onRemoveMonth={onRemove}
           monthLabel={`${monthNameFull(month)} ${year}`}
           onClose={() => setShowManage(false)}

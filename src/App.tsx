@@ -19,15 +19,35 @@ export default function App() {
     <div className={`app ${sidebarOpen ? "sb-open" : ""}`}>
       <header className="hdr">
         <div className="hdr-left">
-          <h1 className="logo" onClick={() => navigate("/")}>Divvy</h1>
+          <h1 className="logo" onClick={() => navigate("/")}>
+            Divvy
+          </h1>
           <nav className="nav">
-            <button className={`nav-btn${location.pathname === "/" ? " active" : ""}`} onClick={() => navigate("/")}>Timeline</button>
-            <button className={`nav-btn${location.pathname === "/summary" ? " active" : ""}`} onClick={() => navigate("/summary")}>Summary</button>
+            <button
+              className={`nav-btn${location.pathname === "/" ? " active" : ""}`}
+              onClick={() => navigate("/")}
+            >
+              Timeline
+            </button>
+            <button
+              className={`nav-btn${location.pathname === "/summary" ? " active" : ""}`}
+              onClick={() => navigate("/summary")}
+            >
+              Summary
+            </button>
           </nav>
         </div>
         <div className="hdr-right">
-          <select className="yr-sel" value={currentYear} onChange={(e) => setCurrentYear(Number(e.target.value))}>
-            {years.map(y => <option key={y} value={y}>{y}</option>)}
+          <select
+            className="yr-sel"
+            value={currentYear}
+            onChange={(e) => setCurrentYear(Number(e.target.value))}
+          >
+            {years.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
           </select>
           {(() => {
             const months = getMonths(currentYear);
@@ -44,7 +64,12 @@ export default function App() {
           <button className="sb-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
             {sidebarOpen ? "Hide YTD" : "Show YTD"}
           </button>
-          <button className={`nav-btn${location.pathname === "/settings" ? " active" : ""}`} onClick={() => navigate("/settings")}>Settings</button>
+          <button
+            className={`nav-btn${location.pathname === "/settings" ? " active" : ""}`}
+            onClick={() => navigate("/settings")}
+          >
+            Settings
+          </button>
         </div>
       </header>
 
@@ -52,7 +77,11 @@ export default function App() {
         <div className="content">
           <Outlet context={{ sectionStyle: "d" }} />
         </div>
-        {sidebarOpen && <aside className="sidebar"><YtdSidebar /></aside>}
+        {sidebarOpen && (
+          <aside className="sidebar">
+            <YtdSidebar />
+          </aside>
+        )}
       </div>
     </div>
   );

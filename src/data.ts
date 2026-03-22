@@ -4,8 +4,18 @@ export const STORAGE_KEY = "divvy-budget";
 
 // Month names for display
 export const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 // Factory: create a blank earner
@@ -19,15 +29,32 @@ export const makeSection = (name = "", items: Item[] = []): Section => ({
 });
 
 // Factory: create a blank line item
-export const makeItem = (name = "", budget = 0, earner1 = 0, earner2 = 0, actual = 0, notes = ""): Item => ({
+export const makeItem = (
+  name = "",
+  budget = 0,
+  earner1 = 0,
+  earner2 = 0,
+  actual = 0,
+  notes = "",
+): Item => ({
   id: crypto.randomUUID(),
-  name, budget, earner1, earner2, actual, notes,
+  name,
+  budget,
+  earner1,
+  earner2,
+  actual,
+  notes,
 });
 
 // Factory: create a blank fund
 export const makeFund = (name = "", opening = 0, minBal = 0, notes = ""): Fund => ({
   id: crypto.randomUUID(),
-  name, opening, transfersIn: 0, transfersOut: 0, minBal, notes,
+  name,
+  opening,
+  transfersIn: 0,
+  transfersOut: 0,
+  minBal,
+  notes,
 });
 
 // Factory: create a month record
@@ -35,19 +62,29 @@ export const makeMonth = (
   year: number,
   month: number,
   earners: Earner[],
-  sections: { name: string; items: { name: string; budget?: number; earner1?: number; earner2?: number; actual?: number; notes?: string }[] }[],
+  sections: {
+    name: string;
+    items: {
+      name: string;
+      budget?: number;
+      earner1?: number;
+      earner2?: number;
+      actual?: number;
+      notes?: string;
+    }[];
+  }[],
   funds: { name: string; opening?: number; minBal?: number; notes?: string }[],
 ): Month => ({
   id: `${year}-${String(month + 1).padStart(2, "0")}`,
   year,
   month, // 0-indexed
-  earners: earners.map(e => ({ ...e })),
-  sections: sections.map(s => ({
+  earners: earners.map((e) => ({ ...e })),
+  sections: sections.map((s) => ({
     ...s,
     id: crypto.randomUUID(),
-    items: s.items.map(item => ({ ...item, id: crypto.randomUUID() } as Item)),
+    items: s.items.map((item) => ({ ...item, id: crypto.randomUUID() }) as Item),
   })),
-  funds: funds.map(f => ({ ...f, id: crypto.randomUUID() } as Fund)),
+  funds: funds.map((f) => ({ ...f, id: crypto.randomUUID() }) as Fund),
 });
 
 // Empty state — fresh start, redirects to setup

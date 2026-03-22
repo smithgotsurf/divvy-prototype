@@ -178,7 +178,14 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
   const addItem = useCallback(
     (year: number, monthIndex: number, sectionId: string, data?: Partial<Item>) => {
       const item = data
-        ? makeItem(data.name || "", data.budget || 0, data.earner1 || 0, data.earner2 || 0, data.actual || 0, data.notes || "")
+        ? makeItem(
+            data.name || "",
+            data.budget || 0,
+            data.earner1 || 0,
+            data.earner2 || 0,
+            data.actual || 0,
+            data.notes || "",
+          )
         : makeItem("New Item");
       updateMonth(year, monthIndex, (m) => ({
         ...m,
@@ -191,12 +198,21 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
   );
 
   const updateItem = useCallback(
-    (year: number, monthIndex: number, sectionId: string, itemId: string, updates: Partial<Item>) => {
+    (
+      year: number,
+      monthIndex: number,
+      sectionId: string,
+      itemId: string,
+      updates: Partial<Item>,
+    ) => {
       updateMonth(year, monthIndex, (m) => ({
         ...m,
         sections: m.sections.map((s) =>
           s.id === sectionId
-            ? { ...s, items: s.items.map((item) => (item.id === itemId ? { ...item, ...updates } : item)) }
+            ? {
+                ...s,
+                items: s.items.map((item) => (item.id === itemId ? { ...item, ...updates } : item)),
+              }
             : s,
         ),
       }));
@@ -229,7 +245,9 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
 
   const addFund = useCallback(
     (year: number, monthIndex: number, data?: Partial<Fund>) => {
-      const f = data ? makeFund(data.name || "", data.opening || 0, data.minBal || 0, data.notes) : makeFund("New Fund", 0, 0);
+      const f = data
+        ? makeFund(data.name || "", data.opening || 0, data.minBal || 0, data.notes)
+        : makeFund("New Fund", 0, 0);
       updateMonth(year, monthIndex, (m) => ({
         ...m,
         funds: [...m.funds, f],
@@ -297,8 +315,9 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       }
       const data = parsed as BudgetState;
 
-      // Migrate old format (bills + allocations) to sections
-      for (const yearKey of Object.keys(data.years)) {
+      // Migrate old format (bills + allocations) to sections — uses `any` for legacy untyped data
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      for (const yearKey of Object.keys(data.years as any)) {
         const yearData = (data.years as any)[yearKey];
         for (const m of yearData.months) {
           if ((m as any).bills && (m as any).allocations && !(m as any).sections) {
@@ -336,6 +355,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
           }
         }
       }
+      /* eslint-enable @typescript-eslint/no-explicit-any */
 
       setState(data);
     },
@@ -381,6 +401,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useBudget(): BudgetContextValue {
   const ctx = useContext(BudgetContext);
   if (!ctx) throw new Error("useBudget must be used within BudgetProvider");

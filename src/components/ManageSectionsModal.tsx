@@ -13,13 +13,25 @@ interface ManageSectionsModalProps {
   onClose: () => void;
 }
 
-export default function ManageSectionsModal({ sections, earners, onAdd, onRename, onRemove, onUpdateEarner, onRemoveMonth, monthLabel, onClose }: ManageSectionsModalProps) {
+export default function ManageSectionsModal({
+  sections,
+  earners,
+  onAdd,
+  onRename,
+  onRemove,
+  onUpdateEarner,
+  onRemoveMonth,
+  monthLabel,
+  onClose,
+}: ManageSectionsModalProps) {
   const [newName, setNewName] = useState("");
   const backdropRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [onClose]);
@@ -33,28 +45,37 @@ export default function ManageSectionsModal({ sections, earners, onAdd, onRename
   };
 
   return (
-    <div className="rm-backdrop" ref={backdropRef} onClick={(e) => { if (e.target === backdropRef.current) onClose(); }}>
+    <div
+      className="rm-backdrop"
+      ref={backdropRef}
+      onClick={(e) => {
+        if (e.target === backdropRef.current) onClose();
+      }}
+    >
       <div className="rm">
         <div className="rm-hdr">
           <h3 className="rm-title">{monthLabel ? `${monthLabel} Settings` : "Month Settings"}</h3>
-          <button className="rm-close" onClick={onClose}>×</button>
+          <button className="rm-close" onClick={onClose}>
+            ×
+          </button>
         </div>
         <div className="rm-body">
           <div className="ms-group">
             <label className="rm-label">Income</label>
-            {earners.map((e, i) => (
-              e.name && (
-                <div key={i} className="ms-earner-row">
-                  <span className="ms-earner-name">{e.name}</span>
-                  <input
-                    className="rm-input rm-input-num"
-                    type="number"
-                    value={e.income || ""}
-                    onChange={(ev) => onUpdateEarner(i, parseFloat(ev.target.value) || 0)}
-                  />
-                </div>
-              )
-            ))}
+            {earners.map(
+              (e, i) =>
+                e.name && (
+                  <div key={i} className="ms-earner-row">
+                    <span className="ms-earner-name">{e.name}</span>
+                    <input
+                      className="rm-input rm-input-num"
+                      type="number"
+                      value={e.income || ""}
+                      onChange={(ev) => onUpdateEarner(i, parseFloat(ev.target.value) || 0)}
+                    />
+                  </div>
+                ),
+            )}
           </div>
 
           <div className="ms-group">
@@ -72,7 +93,9 @@ export default function ManageSectionsModal({ sections, earners, onAdd, onRename
                     if (confirm(`Delete "${s.name}" and all its items?`)) onRemove(s.id);
                   }}
                   title="Delete section"
-                >×</button>
+                >
+                  ×
+                </button>
               </div>
             ))}
             <div className="ms-add-row">
@@ -82,9 +105,13 @@ export default function ManageSectionsModal({ sections, earners, onAdd, onRename
                 value={newName}
                 placeholder="New section name"
                 onChange={(e) => setNewName(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") handleAdd(); }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleAdd();
+                }}
               />
-              <button className="ms-add-btn" onClick={handleAdd}>Add</button>
+              <button className="ms-add-btn" onClick={handleAdd}>
+                Add
+              </button>
             </div>
           </div>
         </div>
@@ -98,9 +125,13 @@ export default function ManageSectionsModal({ sections, earners, onAdd, onRename
                   onRemoveMonth();
                 }
               }}
-            >Delete</button>
+            >
+              Delete
+            </button>
           )}
-          <button className="rm-save" onClick={onClose}>Done</button>
+          <button className="rm-save" onClick={onClose}>
+            Done
+          </button>
         </div>
       </div>
     </div>

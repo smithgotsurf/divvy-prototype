@@ -23,5 +23,5 @@ createRoot(document.getElementById("root")!).render(
         </Routes>
       </HashRouter>
     </BudgetProvider>
-  </StrictMode>
+  </StrictMode>,
 );

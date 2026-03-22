@@ -26,7 +26,10 @@ export default function SectionGrid({ year, monthIndex, section, earners }: Sect
   const actualTotal = itemsTotal(section.items, "actual");
 
   const handleAdd = () => {
-    setModal({ data: { id: "", name: "", budget: 0, earner1: 0, earner2: 0, actual: 0, notes: "" }, isNew: true });
+    setModal({
+      data: { id: "", name: "", budget: 0, earner1: 0, earner2: 0, actual: 0, notes: "" },
+      isNew: true,
+    });
   };
 
   const handleSave = (draft: Record<string, string | number>) => {
@@ -41,7 +44,9 @@ export default function SectionGrid({ year, monthIndex, section, earners }: Sect
     <div className="sg">
       <div className="sg-hdr">
         <span className="sg-title">{section.name}</span>
-        <button className="sg-add" onClick={handleAdd}>+ Add</button>
+        <button className="sg-add" onClick={handleAdd}>
+          + Add
+        </button>
       </div>
       <table className="sg-tbl">
         <thead>
@@ -58,33 +63,92 @@ export default function SectionGrid({ year, monthIndex, section, earners }: Sect
         </thead>
         <tbody>
           {section.items.map((item) => (
-            <tr key={item.id} className={item.actual > item.budget && item.actual > 0 ? "sg-over" : ""}>
+            <tr
+              key={item.id}
+              className={item.actual > item.budget && item.actual > 0 ? "sg-over" : ""}
+            >
               <td>
-                <EditableCell value={item.name} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { name: v as string })} />
+                <EditableCell
+                  value={item.name}
+                  onChange={(v) =>
+                    updateItem(year, monthIndex, section.id, item.id, { name: v as string })
+                  }
+                />
               </td>
-              <td className="num muted">{income > 0 ? fmtPct(Math.round((item.budget / income) * 10000) / 100) : ""}</td>
+              <td className="num muted">
+                {income > 0 ? fmtPct(Math.round((item.budget / income) * 10000) / 100) : ""}
+              </td>
               <td className="num">
-                <EditableCell value={item.budget} type="number" formatter={fmt} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { budget: v as number })} />
+                <EditableCell
+                  value={item.budget}
+                  type="number"
+                  formatter={fmt}
+                  onChange={(v) =>
+                    updateItem(year, monthIndex, section.id, item.id, { budget: v as number })
+                  }
+                />
               </td>
               {showSplit && (
                 <td className="num">
-                  <EditableCell value={item.earner1} type="number" formatter={fmt} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { earner1: v as number })} />
+                  <EditableCell
+                    value={item.earner1}
+                    type="number"
+                    formatter={fmt}
+                    onChange={(v) =>
+                      updateItem(year, monthIndex, section.id, item.id, { earner1: v as number })
+                    }
+                  />
                 </td>
               )}
               {showSplit && (
                 <td className="num">
-                  <EditableCell value={item.earner2} type="number" formatter={fmt} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { earner2: v as number })} />
+                  <EditableCell
+                    value={item.earner2}
+                    type="number"
+                    formatter={fmt}
+                    onChange={(v) =>
+                      updateItem(year, monthIndex, section.id, item.id, { earner2: v as number })
+                    }
+                  />
                 </td>
               )}
               <td className="num">
-                <EditableCell value={item.actual} type="number" formatter={fmt} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { actual: v as number })} />
+                <EditableCell
+                  value={item.actual}
+                  type="number"
+                  formatter={fmt}
+                  onChange={(v) =>
+                    updateItem(year, monthIndex, section.id, item.id, { actual: v as number })
+                  }
+                />
               </td>
               <td>
-                <EditableCell value={item.notes} onChange={(v) => updateItem(year, monthIndex, section.id, item.id, { notes: v as string })} className="sg-notes" />
+                <EditableCell
+                  value={item.notes}
+                  onChange={(v) =>
+                    updateItem(year, monthIndex, section.id, item.id, { notes: v as string })
+                  }
+                  className="sg-notes"
+                />
               </td>
               <td className="row-actions">
-                <button className="row-edit" onClick={() => setModal({ data: item, isNew: false })} title="Edit">✎</button>
-                <button className="sg-rm" onClick={() => { if (confirm(`Remove "${item.name || 'this item'}"?`)) removeItem(year, monthIndex, section.id, item.id); }} title="Remove">×</button>
+                <button
+                  className="row-edit"
+                  onClick={() => setModal({ data: item, isNew: false })}
+                  title="Edit"
+                >
+                  ✎
+                </button>
+                <button
+                  className="sg-rm"
+                  onClick={() => {
+                    if (confirm(`Remove "${item.name || "this item"}"?`))
+                      removeItem(year, monthIndex, section.id, item.id);
+                  }}
+                  title="Remove"
+                >
+                  ×
+                </button>
               </td>
             </tr>
           ))}

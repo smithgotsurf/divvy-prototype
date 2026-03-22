@@ -16,7 +16,8 @@ export default function SummaryPage() {
       for (const s of m.sections) {
         if (!sectionMap[s.name]) sectionMap[s.name] = {};
         for (const item of s.items) {
-          if (!sectionMap[s.name][item.name]) sectionMap[s.name][item.name] = { budget: 0, actual: 0 };
+          if (!sectionMap[s.name][item.name])
+            sectionMap[s.name][item.name] = { budget: 0, actual: 0 };
           sectionMap[s.name][item.name].budget += item.budget;
           sectionMap[s.name][item.name].actual += item.actual;
         }
@@ -30,9 +31,13 @@ export default function SummaryPage() {
   const projFactor = monthCount > 0 ? 12 / monthCount : 1;
 
   const { grandBudget, grandActual } = useMemo(() => {
-    let b = 0, a = 0;
+    let b = 0,
+      a = 0;
     for (const items of Object.values(summary)) {
-      for (const { budget, actual } of Object.values(items)) { b += budget; a += actual; }
+      for (const { budget, actual } of Object.values(items)) {
+        b += budget;
+        a += actual;
+      }
     }
     return { grandBudget: b, grandActual: a };
   }, [summary]);
@@ -61,7 +66,7 @@ export default function SummaryPage() {
               </tr>,
               ...Object.entries(items).map(([name, { budget, actual }]) => {
                 const delta = budget - actual;
-                const est = Math.round(actual * projFactor / 12);
+                const est = Math.round((actual * projFactor) / 12);
                 return (
                   <tr key={`${sectionName}-${name}`}>
                     <td>{name}</td>
@@ -74,7 +79,12 @@ export default function SummaryPage() {
                         value={nextYearBudgets[`${sectionName}-${name}`] ?? est}
                         type="number"
                         formatter={fmt}
-                        onChange={(v) => setNextYearBudgets(prev => ({ ...prev, [`${sectionName}-${name}`]: v as number }))}
+                        onChange={(v) =>
+                          setNextYearBudgets((prev) => ({
+                            ...prev,
+                            [`${sectionName}-${name}`]: v as number,
+                          }))
+                        }
                       />
                     </td>
                   </tr>

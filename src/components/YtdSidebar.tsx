@@ -37,7 +37,8 @@ export default function YtdSidebar() {
       for (const s of m.sections) {
         if (!sectionMap[s.name]) sectionMap[s.name] = { items: {}, budget: 0, actual: 0 };
         for (const item of s.items) {
-          if (!sectionMap[s.name].items[item.name]) sectionMap[s.name].items[item.name] = { budget: 0, actual: 0 };
+          if (!sectionMap[s.name].items[item.name])
+            sectionMap[s.name].items[item.name] = { budget: 0, actual: 0 };
           sectionMap[s.name].items[item.name].budget += item.budget;
           sectionMap[s.name].items[item.name].actual += item.actual;
           sectionMap[s.name].budget += item.budget;
@@ -52,7 +53,7 @@ export default function YtdSidebar() {
     const monthsElapsed = months.length;
 
     return { sectionMap, totalBudget, totalActual, latestMonth, monthsElapsed };
-  }, [months, currentYear]);
+  }, [months]);
 
   if (!ytd) return <div className="ys-empty">No data yet</div>;
 
@@ -68,7 +69,9 @@ export default function YtdSidebar() {
   return (
     <div className="ys">
       <h3 className="ys-title">YTD Summary</h3>
-      <p className="ys-sub">{monthsElapsed} month{monthsElapsed !== 1 ? "s" : ""} of data</p>
+      <p className="ys-sub">
+        {monthsElapsed} month{monthsElapsed !== 1 ? "s" : ""} of data
+      </p>
 
       {Object.entries(sectionMap).map(([sectionName, { items, budget, actual }]) => (
         <div key={sectionName} className="ys-section">
@@ -76,12 +79,16 @@ export default function YtdSidebar() {
           {Object.entries(items).map(([name, { budget: b, actual: a }]) => (
             <div key={name} className={`ys-row ${indicator(b, a)}`}>
               <span className="ys-name">{name}</span>
-              <span className="ys-vals">{fmt(a)} / {fmt(b)}</span>
+              <span className="ys-vals">
+                {fmt(a)} / {fmt(b)}
+              </span>
             </div>
           ))}
           <div className="ys-row ys-total">
             <span>{sectionName} Total</span>
-            <span>{fmt(actual)} / {fmt(budget)}</span>
+            <span>
+              {fmt(actual)} / {fmt(budget)}
+            </span>
           </div>
         </div>
       ))}

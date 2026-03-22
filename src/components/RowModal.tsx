@@ -41,7 +41,16 @@ interface RowModalProps {
   earners?: Earner[];
 }
 
-export default function RowModal({ type, data, onSave, onClose, showSplit, earnerNames, income, earners }: RowModalProps) {
+export default function RowModal({
+  type,
+  data,
+  onSave,
+  onClose,
+  showSplit,
+  earnerNames,
+  income,
+  earners,
+}: RowModalProps) {
   const ratios = earners ? splitRatios(earners) : [];
   const [draft, setDraft] = useState<Record<string, string | number>>(() => ({
     ...data,
@@ -55,16 +64,22 @@ export default function RowModal({ type, data, onSave, onClose, showSplit, earne
   }, []);
 
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [onClose]);
 
-  const set = (key: string, val: string | number) => setDraft(prev => ({ ...prev, [key]: val }));
+  const set = (key: string, val: string | number) => setDraft((prev) => ({ ...prev, [key]: val }));
 
   const updateBudgetWithSplit = (budget: number) => {
-    setDraft(prev => {
-      const next: Record<string, string | number> = { ...prev, budget, _pct: income && income > 0 ? Math.round((budget / income) * 10000) / 100 : 0 };
+    setDraft((prev) => {
+      const next: Record<string, string | number> = {
+        ...prev,
+        budget,
+        _pct: income && income > 0 ? Math.round((budget / income) * 10000) / 100 : 0,
+      };
       if (showSplit && ratios.length === 2) {
         next.earner1 = Math.round(budget * ratios[0]);
         next.earner2 = budget - (next.earner1 as number);
@@ -74,25 +89,35 @@ export default function RowModal({ type, data, onSave, onClose, showSplit, earne
   };
 
   const handleSave = () => {
-    const { _pct, ...clean } = draft;
+    const { _pct: _, ...clean } = draft;
     onSave(clean);
     onClose();
   };
 
-  const fields = FIELDS[type].filter(f => !f.split || showSplit);
+  const fields = FIELDS[type].filter((f) => !f.split || showSplit);
   const isNew = !data.name && !data.budget && !data.opening;
   const title = isNew ? `Add ${type === "item" ? "Item" : "Fund"}` : `Edit ${draft.name || type}`;
 
   return (
-    <div className="rm-backdrop" ref={backdropRef} onClick={(e) => { if (e.target === backdropRef.current) onClose(); }}>
+    <div
+      className="rm-backdrop"
+      ref={backdropRef}
+      onClick={(e) => {
+        if (e.target === backdropRef.current) onClose();
+      }}
+    >
       <div className="rm">
         <div className="rm-hdr">
           <h3 className="rm-title">{title}</h3>
-          <button className="rm-close" onClick={onClose}>×</button>
+          <button className="rm-close" onClick={onClose}>
+            ×
+          </button>
         </div>
         <div className="rm-body">
           {fields.map((f, i) => {
-            const label = f.label.replace("__e1__", earnerNames?.[0] || "Earner 1").replace("__e2__", earnerNames?.[1] || "Earner 2");
+            const label = f.label
+              .replace("__e1__", earnerNames?.[0] || "Earner 1")
+              .replace("__e2__", earnerNames?.[1] || "Earner 2");
             const val = draft[f.key] ?? "";
 
             return (
@@ -107,7 +132,9 @@ export default function RowModal({ type, data, onSave, onClose, showSplit, earne
                       value={draft.budget || ""}
                       placeholder="0"
                       onChange={(e) => updateBudgetWithSplit(parseFloat(e.target.value) || 0)}
-                      onKeyDown={(e) => { if (e.key === "Enter") handleSave(); }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSave();
+                      }}
                     />
                     <input
                       className="rm-input rm-input-num rm-input-pct"
@@ -116,9 +143,14 @@ export default function RowModal({ type, data, onSave, onClose, showSplit, earne
                       placeholder="%"
                       onChange={(e) => {
                         const pct = parseFloat(e.target.value) || 0;
-                        const newBudget = income && income > 0 ? Math.round(income * pct / 100) : 0;
-                        setDraft(prev => {
-                          const next: Record<string, string | number> = { ...prev, _pct: pct, budget: newBudget };
+                        const newBudget =
+                          income && income > 0 ? Math.round((income * pct) / 100) : 0;
+                        setDraft((prev) => {
+                          const next: Record<string, string | number> = {
+                            ...prev,
+                            _pct: pct,
+                            budget: newBudget,
+                          };
                           if (showSplit && ratios.length === 2) {
                             next.earner1 = Math.round(newBudget * ratios[0]);
                             next.earner2 = newBudget - (next.earner1 as number);
@@ -126,7 +158,9 @@ export default function RowModal({ type, data, onSave, onClose, showSplit, earne
                           return next;
                         });
                       }}
-                      onKeyDown={(e) => { if (e.key === "Enter") handleSave(); }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSave();
+                      }}
                     />
                     <span className="rm-pct-label">%</span>
                   </div>
@@ -138,10 +172,13 @@ export default function RowModal({ type, data, onSave, onClose, showSplit, earne
                     value={val}
                     placeholder={f.type === "number" ? "0" : ""}
                     onChange={(e) => {
-                      const v = f.type === "number" ? (parseFloat(e.target.value) || 0) : e.target.value;
+                      const v =
+                        f.type === "number" ? parseFloat(e.target.value) || 0 : e.target.value;
                       set(f.key, v);
                     }}
-                    onKeyDown={(e) => { if (e.key === "Enter") handleSave(); }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSave();
+                    }}
                   />
                 )}
               </div>
@@ -149,8 +186,12 @@ export default function RowModal({ type, data, onSave, onClose, showSplit, earne
           })}
         </div>
         <div className="rm-footer">
-          <button className="rm-cancel" onClick={onClose}>Cancel</button>
-          <button className="rm-save" onClick={handleSave}>Save</button>
+          <button className="rm-cancel" onClick={onClose}>
+            Cancel
+          </button>
+          <button className="rm-save" onClick={handleSave}>
+            Save
+          </button>
         </div>
       </div>
     </div>

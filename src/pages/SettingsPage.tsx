@@ -55,10 +55,22 @@ export default function SettingsPage() {
         <h3>Data Management</h3>
         <p>Export your budget data as a JSON file, or import a previously exported file.</p>
         <div className="settings-actions">
-          <button className="settings-btn" onClick={handleExport}>Export Data</button>
-          <button className="settings-btn" onClick={() => fileRef.current?.click()}>Import Data</button>
-          <input ref={fileRef} type="file" accept=".json" onChange={handleImport} style={{ display: "none" }} />
-          <button className="settings-btn settings-btn-danger" onClick={handleReset}>Reset All Data</button>
+          <button className="settings-btn" onClick={handleExport}>
+            Export Data
+          </button>
+          <button className="settings-btn" onClick={() => fileRef.current?.click()}>
+            Import Data
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".json"
+            onChange={handleImport}
+            style={{ display: "none" }}
+          />
+          <button className="settings-btn settings-btn-danger" onClick={handleReset}>
+            Reset All Data
+          </button>
         </div>
         {status && <p className={`settings-status ${status.type}`}>{status.msg}</p>}
       </div>
@@ -67,8 +79,12 @@ export default function SettingsPage() {
         <h3>Sample Templates</h3>
         <p>Load sample data to explore the app. This replaces your current data.</p>
         <div className="settings-actions">
-          <button className="settings-btn" onClick={() => handleTemplate("dual")}>Dual Income Sample</button>
-          <button className="settings-btn" onClick={() => handleTemplate("single")}>Single Income Sample</button>
+          <button className="settings-btn" onClick={() => handleTemplate("dual")}>
+            Dual Income Sample
+          </button>
+          <button className="settings-btn" onClick={() => handleTemplate("single")}>
+            Single Income Sample
+          </button>
         </div>
       </div>
     </div>
