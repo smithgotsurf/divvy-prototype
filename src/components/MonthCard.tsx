@@ -36,11 +36,11 @@ export default function MonthCard({
 
   return (
     <div
-      className="card bg-base-200 shadow-sm border border-base-300 mb-5 overflow-hidden"
+      className="card bg-[oklch(97.5%_0.008_70)] shadow-sm border border-base-300 mb-5 overflow-hidden"
       id={`month-${monthData.id}`}
     >
       <div
-        className="flex items-baseline justify-between px-4 py-3 border-b border-base-300 bg-base-200 cursor-pointer"
+        className="flex items-baseline justify-between px-4 py-3 border-b border-base-300 cursor-pointer"
         onClick={() => setCollapsed(!collapsed)}
       >
         <h2 className="text-base font-bold tracking-tight">

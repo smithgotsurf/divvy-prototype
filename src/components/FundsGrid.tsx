@@ -42,7 +42,17 @@ export default function FundsGrid({ year, monthIndex, funds }: FundsGridProps) {
           + Add
         </button>
       </div>
-      <table className="table table-sm w-full">
+      <table className="table table-sm table-fixed w-full [&_td]:py-1 [&_th]:py-1.5">
+        <colgroup>
+          <col className="w-48" />
+          <col className="w-16" />
+          <col className="w-20" />
+          <col className="w-20" />
+          <col className="w-20" />
+          <col className="w-20" />
+          <col />
+          <col className="w-12" />
+        </colgroup>
         <thead>
           <tr>
             <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-left">
@@ -75,7 +85,7 @@ export default function FundsGrid({ year, monthIndex, funds }: FundsGridProps) {
             const belowMin = f.minBal > 0 && closing < f.minBal;
             return (
               <tr key={f.id} className={belowMin ? "bg-warning/10" : ""}>
-                <td>
+                <td className="text-xs font-medium">
                   <EditableCell
                     value={f.name}
                     onChange={(v) => updateFund(year, monthIndex, f.id, { name: v as string })}
@@ -128,26 +138,16 @@ export default function FundsGrid({ year, monthIndex, funds }: FundsGridProps) {
                   <EditableCell
                     value={f.notes}
                     onChange={(v) => updateFund(year, monthIndex, f.id, { notes: v as string })}
-                    className="text-sm text-base-content/60"
+                    className="text-xs text-base-content/60"
                   />
                 </td>
-                <td className="flex gap-1">
+                <td className="text-right">
                   <button
                     className="btn btn-ghost btn-xs"
                     onClick={() => setModal({ data: f, isNew: false })}
                     title="Edit"
                   >
                     ✎
-                  </button>
-                  <button
-                    className="btn btn-ghost btn-xs text-error"
-                    onClick={() => {
-                      if (confirm(`Remove "${f.name || "this fund"}"?`))
-                        removeFund(year, monthIndex, f.id);
-                    }}
-                    title="Remove"
-                  >
-                    ×
                   </button>
                 </td>
               </tr>
@@ -160,6 +160,11 @@ export default function FundsGrid({ year, monthIndex, funds }: FundsGridProps) {
           type="fund"
           data={modal.data as unknown as Record<string, string | number>}
           onSave={handleSave}
+          onDelete={
+            modal.isNew
+              ? undefined
+              : () => removeFund(year, monthIndex, modal.data.id)
+          }
           onClose={() => setModal(null)}
           showSplit={false}
           earnerNames={[]}

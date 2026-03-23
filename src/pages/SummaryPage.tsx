@@ -44,12 +44,13 @@ export default function SummaryPage() {
 
   return (
     <div className="max-w-5xl mx-auto">
+      <div className="card bg-base-100 shadow-sm p-6">
       <h2>{currentYear} Summary</h2>
       <p className="text-sm text-secondary mb-4">{monthCount} of 12 months</p>
 
       <table className="table table-sm w-full">
         <thead>
-          <tr>
+          <tr className="bg-base-200">
             <th>Item</th>
             <th className="text-right font-mono">Annual Budget</th>
             <th className="text-right font-mono">Annual Actual</th>
@@ -61,7 +62,7 @@ export default function SummaryPage() {
         <tbody>
           {Object.entries(summary).map(([sectionName, items]) => {
             return [
-              <tr key={`section-${sectionName}`} className="bg-base-200 font-bold">
+              <tr key={`section-${sectionName}`} className="bg-base-200/50 font-bold">
                 <td colSpan={6}>{sectionName}</td>
               </tr>,
               ...Object.entries(items).map(([name, { budget, actual }]) => {
@@ -107,6 +108,7 @@ export default function SummaryPage() {
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

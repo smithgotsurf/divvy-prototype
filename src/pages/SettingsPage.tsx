@@ -48,13 +48,15 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h2>Settings</h2>
+    <div className="max-w-2xl mx-auto p-6">
+      <h2 className="text-2xl font-bold mb-6">Settings</h2>
 
-      <div className="mb-8">
-        <h3>Data Management</h3>
-        <p>Export your budget data as a JSON file, or import a previously exported file.</p>
-        <div className="flex flex-wrap gap-3 mt-3">
+      <div className="card bg-base-100 shadow-sm p-6 mb-6">
+        <h3 className="font-semibold mb-1">Data Management</h3>
+        <p className="text-sm text-secondary mb-4">
+          Export your budget data as a JSON file, or import a previously exported file.
+        </p>
+        <div className="flex flex-wrap gap-3">
           <button className="btn" onClick={handleExport}>
             Export Data
           </button>
@@ -81,10 +83,12 @@ export default function SettingsPage() {
         )}
       </div>
 
-      <div className="mb-8">
-        <h3>Sample Templates</h3>
-        <p>Load sample data to explore the app. This replaces your current data.</p>
-        <div className="flex flex-wrap gap-3 mt-3">
+      <div className="card bg-base-100 shadow-sm p-6 mb-6">
+        <h3 className="font-semibold mb-1">Sample Templates</h3>
+        <p className="text-sm text-secondary mb-4">
+          Load sample data to explore the app. This replaces your current data.
+        </p>
+        <div className="flex flex-wrap gap-3">
           <button className="btn" onClick={() => handleTemplate("dual")}>
             Dual Income Sample
           </button>

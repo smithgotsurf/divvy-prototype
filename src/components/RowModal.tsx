@@ -35,6 +35,7 @@ interface RowModalProps {
   type: "item" | "fund";
   data: Record<string, string | number>;
   onSave: (draft: Record<string, string | number>) => void;
+  onDelete?: () => void;
   onClose: () => void;
   showSplit: boolean;
   earnerNames: string[];
@@ -46,6 +47,7 @@ export default function RowModal({
   type,
   data,
   onSave,
+  onDelete,
   onClose,
   showSplit,
   earnerNames,
@@ -95,14 +97,31 @@ export default function RowModal({
       title={title}
       onClose={onClose}
       footer={
-        <>
-          <button className="btn" onClick={onClose}>
-            Cancel
-          </button>
-          <button className="btn btn-primary" onClick={handleSave}>
-            Save
-          </button>
-        </>
+        <div className="flex w-full justify-between">
+          {onDelete && !isNew ? (
+            <button
+              className="btn btn-error"
+              onClick={() => {
+                if (confirm(`Delete "${draft.name || type}"?`)) {
+                  onDelete();
+                  onClose();
+                }
+              }}
+            >
+              Delete
+            </button>
+          ) : (
+            <span />
+          )}
+          <div className="flex gap-2">
+            <button className="btn" onClick={onClose}>
+              Cancel
+            </button>
+            <button className="btn btn-primary" onClick={handleSave}>
+              Save
+            </button>
+          </div>
+        </div>
       }
     >
       {fields.map((f, i) => {

@@ -131,36 +131,40 @@ export default function SetupPage() {
   };
 
   return (
+    <div className="min-h-screen bg-base-200">
     <div className="max-w-2xl mx-auto p-6">
-      <h2>Set Up Divvy</h2>
-      <ul className="steps mb-8">
+      <h2 className="text-2xl font-bold text-center mb-4">Set Up Divvy</h2>
+      <div className="flex justify-center gap-2 mb-8">
         {STEPS.map((s, i) => (
-          <li key={s} className={`step${i <= step ? " step-primary" : ""}`}>
+          <span
+            key={s}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium ${i <= step ? "bg-primary text-primary-content" : "border border-base-300 text-secondary"}`}
+          >
             {s}
-          </li>
+          </span>
         ))}
-      </ul>
+      </div>
 
       {step === 0 && (
         <div className="card bg-base-100 shadow-sm p-6">
           <h3>Choose a starting point</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="flex flex-col gap-3">
             {Object.entries(TEMPLATES).map(([key, t]) => (
               <button
                 key={key}
                 className="card bg-base-100 border border-base-300 p-4 cursor-pointer hover:border-primary text-left"
                 onClick={() => applyTemplate(t)}
               >
-                <h4>{t.label}</h4>
-                <p>{t.description}</p>
+                <h4 className="font-bold">{t.label}</h4>
+                <p className="text-sm text-secondary">{t.description}</p>
               </button>
             ))}
             <button
               className="card bg-base-100 border border-base-300 p-4 cursor-pointer hover:border-primary text-left"
               onClick={() => setStep(1)}
             >
-              <h4>Start blank</h4>
-              <p>Set up everything from scratch</p>
+              <h4 className="font-bold">Start blank</h4>
+              <p className="text-sm text-secondary">Set up everything from scratch</p>
             </button>
           </div>
         </div>
@@ -168,8 +172,8 @@ export default function SetupPage() {
 
       {step === 1 && (
         <div className="card bg-base-100 shadow-sm p-6">
-          <h3>How many earners?</h3>
-          <div className="join mb-4">
+          <h3 className="mb-4">How many earners?</h3>
+          <div className="join mb-6">
             <button
               className={`btn join-item${earnerCount === 1 ? " btn-active" : ""}`}
               onClick={() => setEarnerCount(1)}
@@ -184,34 +188,35 @@ export default function SetupPage() {
             </button>
           </div>
           {[0, 1].slice(0, earnerCount).map((i) => (
-            <div key={i} className="form-control mb-3">
-              <label className="label">
-                <span className="label-text">Name</span>
-              </label>
-              <input
-                className="input input-bordered flex-1"
-                value={earners[i].name}
-                onChange={(e) => updateEarner(i, "name", e.target.value)}
-              />
-              <label className="label">
-                <span className="label-text">Monthly Income</span>
-              </label>
-              <input
-                className="input input-bordered flex-1"
-                type="number"
-                value={earners[i].income || ""}
-                onChange={(e) => updateEarner(i, "income", e.target.value)}
-              />
+            <div key={i} className="mb-4 pb-4 border-b border-base-300 last:border-0 last:pb-0 last:mb-0">
+              <div className="flex items-center gap-3 mb-2">
+                <label className="text-sm font-medium w-20">Name</label>
+                <input
+                  className="input input-bordered flex-1"
+                  value={earners[i].name}
+                  onChange={(e) => updateEarner(i, "name", e.target.value)}
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <label className="text-sm font-medium w-20">Income</label>
+                <input
+                  className="input input-bordered w-32"
+                  type="number"
+                  value={earners[i].income || ""}
+                  onChange={(e) => updateEarner(i, "income", e.target.value)}
+                />
+                <span className="text-xs text-secondary">/ month</span>
+              </div>
             </div>
           ))}
           {earnerCount === 2 && (
-            <label className="label cursor-pointer flex items-center gap-2">
+            <label className="flex items-center gap-2 mt-4 cursor-pointer">
               <input
                 type="checkbox"
                 checked={useSplit}
                 onChange={(e) => setUseSplit(e.target.checked)}
               />
-              Use proportional split for bills
+              <span className="text-sm">Use proportional split for bills</span>
             </label>
           )}
         </div>
@@ -245,10 +250,10 @@ export default function SetupPage() {
                 )}
               </div>
               <div className="flex items-center gap-2 mb-1 text-xs font-semibold text-base-content/50 uppercase">
-                <span>Name</span>
-                <span className="text-right flex-1 max-w-24">Amount</span>
-                <span className="text-right flex-1 max-w-24">%</span>
-                <span></span>
+                <span className="flex-1">Name</span>
+                <span className="w-28 text-right">Amount</span>
+                <span className="w-14 text-right">%</span>
+                <span className="w-6"></span>
               </div>
               {s.items.map((item, ii) => (
                 <div key={ii} className="flex items-center gap-2 mb-2">
@@ -259,19 +264,19 @@ export default function SetupPage() {
                     onChange={(e) => updateSectionItem(si, ii, "name", e.target.value)}
                   />
                   <input
-                    className="input input-bordered flex-1"
+                    className="input input-bordered w-28"
                     type="number"
                     placeholder="Amount"
                     value={item.budget || ""}
                     onChange={(e) => updateSectionItem(si, ii, "budget", e.target.value)}
                   />
-                  <span className="text-sm text-secondary w-16 text-right">
+                  <span className="text-sm text-secondary w-14 text-right font-mono">
                     {item.budget && income > 0
                       ? `${Math.round((item.budget / income) * 10000) / 100}%`
                       : ""}
                   </span>
                   <button
-                    className="btn btn-ghost btn-xs text-error"
+                    className="btn btn-ghost btn-xs text-error w-6"
                     onClick={() => {
                       if (confirm(`Remove "${item.name || "this item"}"?`))
                         removeItemFromSection(si, ii);
@@ -281,12 +286,12 @@ export default function SetupPage() {
                   </button>
                 </div>
               ))}
-              <button className="btn btn-ghost btn-sm mt-2" onClick={() => addItemToSection(si)}>
+              <button className="btn btn-ghost btn-sm mt-2 w-fit" onClick={() => addItemToSection(si)}>
                 + Add Item
               </button>
             </div>
           ))}
-          <button className="btn btn-ghost btn-sm mt-4" onClick={addSection}>
+          <button className="btn btn-ghost btn-sm mt-4 w-fit" onClick={addSection}>
             + Add Section
           </button>
         </div>
@@ -299,10 +304,10 @@ export default function SetupPage() {
             Track account balances alongside your budget.
           </p>
           <div className="flex items-center gap-2 mb-1 text-xs font-semibold text-base-content/50 uppercase">
-            <span>Name</span>
-            <span className="text-right flex-1 max-w-24">Opening</span>
-            <span className="text-right flex-1 max-w-24">Min</span>
-            <span></span>
+            <span className="flex-1">Name</span>
+            <span className="w-28 text-right">Opening</span>
+            <span className="w-28 text-right">Min</span>
+            <span className="w-6"></span>
           </div>
           {funds.map((f, i) => (
             <div key={i} className="flex items-center gap-2 mb-2">
@@ -313,21 +318,21 @@ export default function SetupPage() {
                 onChange={(e) => updateFund(i, "name", e.target.value)}
               />
               <input
-                className="input input-bordered flex-1"
+                className="input input-bordered w-28"
                 type="number"
-                placeholder="Opening balance"
+                placeholder="Opening"
                 value={f.opening || ""}
                 onChange={(e) => updateFund(i, "opening", e.target.value)}
               />
               <input
-                className="input input-bordered flex-1"
+                className="input input-bordered w-28"
                 type="number"
-                placeholder="Min balance"
+                placeholder="Min"
                 value={f.minBal || ""}
                 onChange={(e) => updateFund(i, "minBal", e.target.value)}
               />
               <button
-                className="btn btn-ghost btn-xs text-error"
+                className="btn btn-ghost btn-xs text-error w-6"
                 onClick={() => setFunds(funds.filter((_, j) => j !== i))}
               >
                 ×
@@ -335,7 +340,7 @@ export default function SetupPage() {
             </div>
           ))}
           <button
-            className="btn btn-ghost btn-sm mt-2"
+            className="btn btn-ghost btn-sm mt-2 w-fit"
             onClick={() => setFunds([...funds, { name: "", opening: 0, minBal: 0 }])}
           >
             + Add Fund
@@ -360,6 +365,7 @@ export default function SetupPage() {
           </button>
         )}
       </div>
+    </div>
     </div>
   );
 }

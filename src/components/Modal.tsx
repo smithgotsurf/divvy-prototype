@@ -5,9 +5,10 @@ interface ModalProps {
   onClose: () => void;
   footer?: React.ReactNode;
   children: React.ReactNode;
+  className?: string;
 }
 
-export default function Modal({ title, onClose, footer, children }: ModalProps) {
+export default function Modal({ title, onClose, footer, children, className = "" }: ModalProps) {
   const backdropRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export default function Modal({ title, onClose, footer, children }: ModalProps) 
         if (e.target === backdropRef.current) onClose();
       }}
     >
-      <div className="modal-box">
+      <div className={`modal-box ${className}`}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold">{title}</h3>
           <button className="btn btn-sm btn-circle btn-ghost" onClick={onClose}>

@@ -8,8 +8,8 @@
   color-scheme: light;
 
   /* Base: warm off-white surfaces */
-  --color-base-100: oklch(97.5% 0.008 70); /* #ffffff surface */
-  --color-base-200: oklch(96% 0.008 70); /* #faf8f5 surface-alt */
+  --color-base-100: oklch(100% 0 0); /* pure white surface */
+  --color-base-200: oklch(95% 0.01 70); /* warm off-white surface-alt */
   --color-base-300: oklch(90% 0.012 70); /* #e8e4dc border-light */
   --color-base-content: oklch(18% 0.02 50); /* #1c1917 text */
 

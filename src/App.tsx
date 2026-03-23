@@ -17,7 +17,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-base-200">
-      <header className="navbar bg-base-100 border-b border-base-300 shadow-sm sticky top-0 z-50 px-6 min-h-[52px]">
+      <header className="navbar justify-between bg-base-100 border-b border-base-300 shadow-sm sticky top-0 z-50 px-6 min-h-[52px]">
         <div className="flex items-center gap-3">
           <h1
             className="text-lg font-bold tracking-tight text-primary cursor-pointer select-none"

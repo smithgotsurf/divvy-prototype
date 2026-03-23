@@ -50,7 +50,17 @@ export default function SectionGrid({ year, monthIndex, section, earners }: Sect
           + Add
         </button>
       </div>
-      <table className="table table-sm w-full">
+      <table className="table table-sm table-fixed w-full [&_td]:py-1 [&_th]:py-1.5">
+        <colgroup>
+          <col className="w-48" />
+          <col className="w-16" />
+          <col className="w-20" />
+          {showSplit && <col className="w-20" />}
+          {showSplit && <col className="w-20" />}
+          <col className="w-20" />
+          <col />
+          <col className="w-12" />
+        </colgroup>
         <thead>
           <tr>
             <th className="text-xs font-semibold uppercase tracking-wide text-base-content/50 text-left">
@@ -87,7 +97,7 @@ export default function SectionGrid({ year, monthIndex, section, earners }: Sect
               key={item.id}
               className={item.actual > item.budget && item.actual > 0 ? "bg-error/10" : ""}
             >
-              <td>
+              <td className="text-xs font-medium">
                 <EditableCell
                   value={item.name}
                   onChange={(v) =>
@@ -148,26 +158,16 @@ export default function SectionGrid({ year, monthIndex, section, earners }: Sect
                   onChange={(v) =>
                     updateItem(year, monthIndex, section.id, item.id, { notes: v as string })
                   }
-                  className="text-sm text-base-content/60"
+                  className="text-xs text-base-content/60"
                 />
               </td>
-              <td className="flex gap-1">
+              <td className="text-right">
                 <button
                   className="btn btn-ghost btn-xs"
                   onClick={() => setModal({ data: item, isNew: false })}
                   title="Edit"
                 >
                   ✎
-                </button>
-                <button
-                  className="btn btn-ghost btn-xs text-error"
-                  onClick={() => {
-                    if (confirm(`Remove "${item.name || "this item"}"?`))
-                      removeItem(year, monthIndex, section.id, item.id);
-                  }}
-                  title="Remove"
-                >
-                  ×
                 </button>
               </td>
             </tr>
@@ -191,6 +191,11 @@ export default function SectionGrid({ year, monthIndex, section, earners }: Sect
           type="item"
           data={modal.data as unknown as Record<string, string | number>}
           onSave={handleSave}
+          onDelete={
+            modal.isNew
+              ? undefined
+              : () => removeItem(year, monthIndex, section.id, modal.data.id)
+          }
           onClose={() => setModal(null)}
           showSplit={showSplit}
           earnerNames={[e1Name, e2Name]}

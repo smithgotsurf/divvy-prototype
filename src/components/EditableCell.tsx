@@ -51,7 +51,7 @@ export default function EditableCell({
     return (
       <input
         ref={inputRef}
-        className={`input input-bordered input-xs w-full font-mono ${className}`}
+        className={`input input-bordered input-xs font-mono ${type === "number" ? "max-w-24" : "w-full"} ${className}`}
         type={type === "number" ? "number" : "text"}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}

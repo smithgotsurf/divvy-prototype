@@ -40,6 +40,7 @@ export default function ManageSectionsModal({
     <Modal
       title={monthLabel ? `${monthLabel} Settings` : "Month Settings"}
       onClose={onClose}
+      className="max-w-sm"
       footer={
         <div className="flex w-full justify-between">
           {onRemoveMonth && (
